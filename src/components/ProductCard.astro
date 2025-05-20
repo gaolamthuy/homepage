@@ -1,0 +1,53 @@
+---
+import type { Product } from '../data/apiService';
+
+interface Props {
+  product: Product;
+}
+
+const { product } = Astro.props;
+
+const formatPrice = (price: number) =>
+  new Intl.NumberFormat('vi-VN').format(price);
+
+// Lấy ảnh thumbnail, fallback sang placeholder
+const thumbnailUrl = product.image?.urls?.thumbnail || product.placeholderUrl;
+
+// Lấy ảnh zoom, fallback sang original, cuối cùng mới fallback placeholder
+const zoomUrl =
+  product.image?.urls?.zoom ||
+  product.image?.urls?.original ||
+  product.placeholderUrl;
+---
+<a
+  href={zoomUrl}
+  data-pswp-width="1600"
+  data-pswp-height="1200"
+  target="_blank"
+  rel="noreferrer"
+  class="relative w-full overflow-hidden rounded-xl group block aspect-square"
+>
+  <img
+    src={thumbnailUrl}
+    on:error={(e) => e.target.src = product.placeholderUrl}
+    alt={product.fullName}
+    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+    loading="lazy"
+  />
+
+  <!-- Fullname label: góc trên trái -->
+  <span
+    class="absolute top-2 left-2 bg-black/70 text-white text-xs font-bold px-2 py-1 rounded shadow"
+    style="backdrop-filter: blur(2px);"
+  >
+    {product.fullName}
+  </span>
+
+  <!-- Price label: dưới phải -->
+  <span
+    class="absolute bottom-2 right-2 bg-white/90 text-primary text-sm font-bold px-2 py-1 rounded shadow"
+    style="backdrop-filter: blur(2px);"
+  >
+    {formatPrice(product.basePrice)} | {formatPrice(product.wholeP10Price)}
+  </span>
+</a>

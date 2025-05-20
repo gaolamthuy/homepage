@@ -1,11 +1,106 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import ProductCard from '../components/ProductCard.astro';
+import Footer from '../components/Footer.astro';
+import { getProducts, getCategories } from '../data/apiService';
+import "../styles/global.css";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// Lấy dữ liệu sản phẩm từ API
+const products = await getProducts();
+// Lấy danh sách danh mục
+const categories = getCategories(products);
+
+// Thêm option "Tất cả" vào đầu danh sách
+const allCategories = [
+  { name: 'Tất cả', rank: 0, color: '#cccccc' },
+  ...categories
+];
+
+// List category filter (có Tất cả đầu tiên)
+
+const defaultCategory = "gau-bong";
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="Gạo Lâm Thúy - Gạo chất lượng cao">
+  <Navbar />
+  
+  <main class="container mx-auto px-4 py-8">
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-primary mb-4">🌾 Gạo Lâm Thúy</h1>
+      <p class="text-lg text-base-content opacity-80 max-w-2xl mx-auto">
+        Chuyên cung cấp các loại gạo chất lượng cao, thương hiệu uy tín tại Việt Nam
+      </p>
+    </div>
+
+    <!-- Filter radio group scroll ngang có Tất cả -->
+    <div class="w-full overflow-x-auto mb-8">
+      <form id="filter-form" class="flex gap-2 overflow-x-auto px-1 pb-2">
+  {allCategories.map((cat, index) => (
+    <label
+      class="relative cursor-pointer"
+      style={`--border-color: ${cat.color};`}
+    >
+      <input
+        type="radio"
+        name="category"
+        value={cat.name}
+        checked={index === 0}
+        class="peer hidden"
+      />
+      <div
+        class="px-3 py-1 text-sm border rounded-full whitespace-nowrap 
+               peer-checked:bg-[var(--border-color)] peer-checked:text-white 
+               hover:bg-[var(--border-color)] hover:text-white 
+               border-[var(--border-color)] transition-all duration-150"
+      >
+        {cat.name}
+      </div>
+    </label>
+  ))}
+</form>
+
+    </div>
+
+    <!-- Product grid -->
+    <div id="products-gallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+      {products.map((product) => (
+        <div data-category={product.category.name}>
+          <ProductCard product={product} />
+        </div>
+      ))}
+    </div>
+  </main>
+
+  <Footer />
 </Layout>
+
+<!-- Script filter bằng JS thuần, lọc product theo radio -->
+<script>
+  const form = document.getElementById('filter-form');
+  const grid = document.getElementById('products-gallery');
+  const allItems = Array.from(grid.children);
+
+  // Lọc khi radio thay đổi
+  form.addEventListener('change', (e) => {
+    const value = form.category.value;
+    
+    allItems.forEach(item => {
+      if (value === 'Tất cả' || item.dataset.category === value) {
+        item.style.display = '';
+      } else {
+        item.style.display = 'none';
+      }
+    });
+  });
+</script>
+
+<!-- Thêm PhotoSwipe script -->
+<script type="module" src="/photoswipe-init.js"></script>
+
+<style>
+  /* Tùy chỉnh màu cho radio button theo category */
+  input[type="radio"].btn::before {
+    background-color: var(--cat-color, #cccccc);
+  }
+</style>

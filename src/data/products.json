@@ -1,0 +1,322 @@
+[
+  {
+    "id": 1,
+    "title": "Gấu bông dễ thương 1",
+    "image": "https://placehold.co/300x300?text=Product+1",
+    "price": 120000,
+    "description": "Gấu bông mềm mại, phù hợp làm quà tặng cho bé.",
+    "category": "gau-bong"
+  },
+  {
+    "id": 2,
+    "title": "Gấu bông dễ thương 2",
+    "image": "https://placehold.co/300x300?text=Product+2",
+    "price": 135000,
+    "description": "Món quà ý nghĩa cho người thân yêu.",
+    "category": "gau-bong"
+  },
+  {
+    "id": 3,
+    "title": "Gấu bông dễ thương 3",
+    "image": "https://placehold.co/300x300?text=Product+3",
+    "price": 99000,
+    "description": "Thiết kế nhỏ xinh, màu sắc tươi sáng.",
+    "category": "gau-bong"
+  },
+  {
+    "id": 4,
+    "title": "Gối ôm hình thú",
+    "image": "https://placehold.co/300x300?text=Product+4",
+    "price": 110000,
+    "description": "Gối ôm hình thú dễ thương, chất liệu bông mịn.",
+    "category": "phu-kien"
+  },
+  {
+    "id": 5,
+    "title": "Móc khoá thú bông",
+    "image": "https://placehold.co/300x300?text=Product+5",
+    "price": 35000,
+    "description": "Phụ kiện trang trí balo hoặc chìa khoá.",
+    "category": "phu-kien"
+  },
+  {
+    "id": 6,
+    "title": "Thú nhồi bông hình cá voi",
+    "image": "https://placehold.co/300x300?text=Product+6",
+    "price": 165000,
+    "description": "Thú nhồi bông hình cá voi đáng yêu, an toàn cho bé.",
+    "category": "gau-bong"
+  },
+  {
+    "id": 7,
+    "title": "Balo trẻ em hình thú",
+    "image": "https://placehold.co/300x300?text=Product+7",
+    "price": 175000,
+    "description": "Balo nhỏ xinh phù hợp đi học, đi chơi.",
+    "category": "balo-tui"
+  },
+  {
+    "id": 8,
+    "title": "Hộp bút hình mèo",
+    "image": "https://placehold.co/300x300?text=Product+8",
+    "price": 69000,
+    "description": "Hộp bút xinh xắn, chất liệu bền đẹp.",
+    "category": "do-hoc-tap"
+  },
+  {
+    "id": 9,
+    "title": "Bình nước mini cute",
+    "image": "https://placehold.co/300x300?text=Product+9",
+    "price": 59000,
+    "description": "Bình nước nhỏ gọn, hoa văn dễ thương.",
+    "category": "phu-kien"
+  },
+  {
+    "id": 10,
+    "title": "Set sticker dán trang trí",
+    "image": "https://placehold.co/300x300?text=Product+10",
+    "price": 25000,
+    "description": "Set 30 sticker hình dễ thương, đa dạng mẫu mã.",
+    "category": "phu-kien"
+  },
+  {
+    "id": 11,
+    "title": "Ốp điện thoại hoạt hình",
+    "image": "https://placehold.co/300x300?text=Product+11",
+    "price": 89000,
+    "description": "Ốp nhựa mềm, hình vẽ hoạt hình siêu cute.",
+    "category": "phu-kien"
+  },
+  {
+    "id": 12,
+    "title": "Ví mini họa tiết",
+    "image": "https://placehold.co/300x300?text=Product+12",
+    "price": 45000,
+    "description": "Ví mini nhỏ gọn, hoa văn pastel nhẹ nhàng.",
+    "category": "phu-kien"
+  },
+  {
+    "id": 13,
+    "title": "Khung ảnh mèo con",
+    "image": "https://placehold.co/300x300?text=Product+13",
+    "price": 57000,
+    "description": "Khung ảnh xinh xắn cho bàn học, bàn làm việc.",
+    "category": "phu-kien"
+  },
+  {
+    "id": 14,
+    "title": "Đèn ngủ hình thú",
+    "image": "https://placehold.co/300x300?text=Product+14",
+    "price": 135000,
+    "description": "Đèn ngủ hình thú, ánh sáng dịu nhẹ.",
+    "category": "den-ngu"
+  },
+  {
+    "id": 15,
+    "title": "Quạt mini cầm tay",
+    "image": "https://placehold.co/300x300?text=Product+15",
+    "price": 52000,
+    "description": "Quạt nhỏ gọn, tiện lợi mang theo mọi nơi.",
+    "category": "phu-kien"
+  },
+  {
+    "id": 16,
+    "title": "Gấu bông dễ thương 4",
+    "image": "https://placehold.co/300x300?text=Product+16",
+    "price": 115000,
+    "description": "Gấu bông nhỏ cho bé gái.",
+    "category": "gau-bong"
+  },
+  {
+    "id": 17,
+    "title": "Gấu bông dễ thương 5",
+    "image": "https://placehold.co/300x300?text=Product+17",
+    "price": 125000,
+    "description": "Gấu bông tặng người yêu siêu cute.",
+    "category": "gau-bong"
+  },
+  {
+    "id": 18,
+    "title": "Set bút màu pastel",
+    "image": "https://placehold.co/300x300?text=Product+18",
+    "price": 69000,
+    "description": "Set 12 bút màu pastel dành cho học sinh.",
+    "category": "do-hoc-tap"
+  },
+  {
+    "id": 19,
+    "title": "Lịch để bàn dễ thương",
+    "image": "https://placehold.co/300x300?text=Product+19",
+    "price": 47000,
+    "description": "Lịch nhỏ gọn, trang trí bàn học.",
+    "category": "do-hoc-tap"
+  },
+  {
+    "id": 20,
+    "title": "Sổ tay hình thú",
+    "image": "https://placehold.co/300x300?text=Product+20",
+    "price": 34000,
+    "description": "Sổ tay ghi chú bìa hình thú cưng.",
+    "category": "do-hoc-tap"
+  },
+  {
+    "id": 21,
+    "title": "Móc khoá hình gấu",
+    "image": "https://placehold.co/300x300?text=Product+21",
+    "price": 30000,
+    "description": "Móc khoá gấu mini, dễ thương.",
+    "category": "phu-kien"
+  },
+  {
+    "id": 22,
+    "title": "Gối kê cổ cute",
+    "image": "https://placehold.co/300x300?text=Product+22",
+    "price": 87000,
+    "description": "Gối kê cổ cho dân văn phòng.",
+    "category": "phu-kien"
+  },
+  {
+    "id": 23,
+    "title": "Bút highlight nhiều màu",
+    "image": "https://placehold.co/300x300?text=Product+23",
+    "price": 22000,
+    "description": "Set bút highlight 6 màu, thiết kế nhỏ gọn.",
+    "category": "do-hoc-tap"
+  },
+  {
+    "id": 24,
+    "title": "Thú nhồi bông heo hồng",
+    "image": "https://placehold.co/300x300?text=Product+24",
+    "price": 97000,
+    "description": "Bông heo hồng siêu cute, mềm mịn.",
+    "category": "gau-bong"
+  },
+  {
+    "id": 25,
+    "title": "Set khẩu trang hoạt hình",
+    "image": "https://placehold.co/300x300?text=Product+25",
+    "price": 35000,
+    "description": "Set 5 chiếc khẩu trang hình thú.",
+    "category": "phu-kien"
+  },
+  {
+    "id": 26,
+    "title": "Bình giữ nhiệt nhỏ",
+    "image": "https://placehold.co/300x300?text=Product+26",
+    "price": 85000,
+    "description": "Bình giữ nhiệt mini, màu pastel nhẹ nhàng.",
+    "category": "phu-kien"
+  },
+  {
+    "id": 27,
+    "title": "Thú nhồi bông cá mập",
+    "image": "https://placehold.co/300x300?text=Product+27",
+    "price": 128000,
+    "description": "Thú nhồi bông cá mập cực chất cho bé.",
+    "category": "gau-bong"
+  },
+  {
+    "id": 28,
+    "title": "Túi đeo chéo hình thú",
+    "image": "https://placehold.co/300x300?text=Product+28",
+    "price": 115000,
+    "description": "Túi đeo chéo cho bé gái, bé trai.",
+    "category": "balo-tui"
+  },
+  {
+    "id": 29,
+    "title": "Đèn bàn học mini",
+    "image": "https://placehold.co/300x300?text=Product+29",
+    "price": 139000,
+    "description": "Đèn bàn học siêu sáng, nhiều màu sắc.",
+    "category": "den-ngu"
+  },
+  {
+    "id": 30,
+    "title": "Bóp viết hình gấu",
+    "image": "https://placehold.co/300x300?text=Product+30",
+    "price": 65000,
+    "description": "Bóp viết nhỏ xinh, hình gấu.",
+    "category": "do-hoc-tap"
+  },
+  {
+    "id": 31,
+    "title": "Set móc khoá cute",
+    "image": "https://placehold.co/300x300?text=Product+31",
+    "price": 52000,
+    "description": "Set 4 móc khoá hình dễ thương.",
+    "category": "phu-kien"
+  },
+  {
+    "id": 32,
+    "title": "Bảng vẽ mini",
+    "image": "https://placehold.co/300x300?text=Product+32",
+    "price": 59000,
+    "description": "Bảng vẽ nhỏ gọn, tặng kèm bút lông.",
+    "category": "do-hoc-tap"
+  },
+  {
+    "id": 33,
+    "title": "Balo hoạt hình",
+    "image": "https://placehold.co/300x300?text=Product+33",
+    "price": 145000,
+    "description": "Balo cho bé mẫu giáo, nhiều mẫu hoạt hình.",
+    "category": "balo-tui"
+  },
+  {
+    "id": 34,
+    "title": "Kẹp tóc hình thú",
+    "image": "https://placehold.co/300x300?text=Product+34",
+    "price": 17000,
+    "description": "Kẹp tóc cho bé gái, hình thú siêu xinh.",
+    "category": "phu-kien"
+  },
+  {
+    "id": 35,
+    "title": "Đèn ngủ hình mèo",
+    "image": "https://placehold.co/300x300?text=Product+35",
+    "price": 112000,
+    "description": "Đèn ngủ mèo cảm ứng, ánh sáng dịu.",
+    "category": "den-ngu"
+  },
+  {
+    "id": 36,
+    "title": "Gấu bông nhỏ",
+    "image": "https://placehold.co/300x300?text=Product+36",
+    "price": 80000,
+    "description": "Gấu bông nhỏ bỏ túi cực dễ thương.",
+    "category": "gau-bong"
+  },
+  {
+    "id": 37,
+    "title": "Ốp điện thoại mèo thần tài",
+    "image": "https://placehold.co/300x300?text=Product+37",
+    "price": 99000,
+    "description": "Ốp điện thoại mèo thần tài, mang may mắn.",
+    "category": "phu-kien"
+  },
+  {
+    "id": 38,
+    "title": "Set băng đô cute",
+    "image": "https://placehold.co/300x300?text=Product+38",
+    "price": 39000,
+    "description": "Set băng đô hình thú, dùng khi trang điểm.",
+    "category": "phu-kien"
+  },
+  {
+    "id": 39,
+    "title": "Gối ôm dài hình thú",
+    "image": "https://placehold.co/300x300?text=Product+39",
+    "price": 134000,
+    "description": "Gối ôm dài, hình thú cực chất.",
+    "category": "phu-kien"
+  },
+  {
+    "id": 40,
+    "title": "Thú nhồi bông vịt vàng",
+    "image": "https://placehold.co/300x300?text=Product+40",
+    "price": 95000,
+    "description": "Vịt vàng bông mịn, cực kỳ cute!",
+    "category": "gau-bong"
+  }
+]

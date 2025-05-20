@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: "Nunito", sans-serif;
+  }
+
+  body {
+    @apply min-h-screen bg-base-100;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply normal-case font-semibold tracking-wide;
+  }
+}
+
+/* PhotoSwipe styles */
+.pswp__img {
+  object-fit: contain;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.pswp__bg {
+  @apply bg-base-100/90 backdrop-blur-md;
+}

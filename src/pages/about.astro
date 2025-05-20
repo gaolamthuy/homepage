@@ -1,0 +1,38 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import "../styles/global.css";
+---
+
+<Layout title="Giới thiệu - 🌾 Gạo Lâm Thúy">
+  <Navbar />
+
+  <main class="container mx-auto px-4 py-8">
+    <div class="max-w-lg mx-auto">
+      <div class="card bg-white/70 rounded-xl shadow p-6">
+        <h1 class="text-2xl font-bold text-primary mb-5 text-center">🌾 Gạo Lâm Thúy</h1>
+        <div class="grid grid-cols-[120px_1fr] gap-y-3 gap-x-4 text-gray-700 items-start">
+          <div class="font-semibold text-right pt-1">Địa chỉ:</div>
+          <div>
+            23 Nguyễn Đình Chiểu, phường 4,<br/>
+            quận Phú Nhuận, TP.HCM
+          </div>
+          <div class="font-semibold text-right pt-1">Số điện thoại:</div>
+          <div class="flex items-center h-[32px]">
+            <a href="tel:0901467300" class="text-orange-600 hover:underline font-bold text-lg">0901 467 300</a>
+          </div>
+          <div class="font-semibold text-right pt-1">Email:</div>
+          <div class="flex items-center h-[32px]">
+            <a href="mailto:lienhe@gaolamthuy.vn" class="text-orange-600 hover:underline font-bold text-lg">lienhe@gaolamthuy.vn</a>
+          </div>
+        </div>
+        <div class="mt-6 text-center text-sm text-gray-500">
+          Cảm ơn bạn đã tin tưởng và ủng hộ 🌾 Gạo Lâm Thúy!
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</Layout>
