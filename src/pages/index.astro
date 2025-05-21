@@ -36,36 +36,35 @@ const defaultCategory = "gau-bong";
     <!-- Filter radio group scroll ngang có Tất cả -->
     <div class="w-full overflow-x-auto mb-8">
       <form id="filter-form" class="flex gap-2 overflow-x-auto px-1 pb-2">
-  {allCategories.map((cat, index) => (
-    <label
-      class="relative cursor-pointer"
-      style={`--border-color: ${cat.color};`}
-    >
-      <input
-        type="radio"
-        name="category"
-        value={cat.name}
-        checked={index === 0}
-        class="peer hidden"
-      />
-      <div
-        class="px-3 py-1 text-sm border rounded-full whitespace-nowrap 
-               peer-checked:bg-[var(--border-color)] peer-checked:text-white 
-               hover:bg-[var(--border-color)] hover:text-white 
-               border-[var(--border-color)] transition-all duration-150"
-      >
-        {cat.name}
-      </div>
-    </label>
-  ))}
-</form>
-
+        {allCategories.map((cat, index) => (
+          <label
+            class="relative cursor-pointer"
+            style={`--border-color: ${cat.color};`}
+          >
+            <input
+              type="radio"
+              name="category"
+              value={cat.name}
+              checked={index === 0}
+              class="peer hidden"
+            />
+            <div
+              class="px-3 py-1 text-sm border rounded-full whitespace-nowrap 
+                     peer-checked:bg-[var(--border-color)] peer-checked:text-white 
+                     hover:bg-[var(--border-color)] hover:text-white 
+                     border-[var(--border-color)] transition-all duration-150"
+            >
+              {cat.name}
+            </div>
+          </label>
+        ))}
+      </form>
     </div>
 
-    <!-- Product grid -->
-    <div id="products-gallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-      {products.map((product) => (
-        <div data-category={product.category.name}>
+    <!-- Product grid with class for PhotoSwipe -->
+    <div id="products-gallery" class="pswp-gallery grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+      {products.map((product, index) => (
+        <div data-category={product.category.name} class="product-item">
           <ProductCard product={product} />
         </div>
       ))}
@@ -75,32 +74,66 @@ const defaultCategory = "gau-bong";
   <Footer />
 </Layout>
 
-<!-- Script filter bằng JS thuần, lọc product theo radio -->
+<!-- Filter script with vanilla JS -->
 <script>
-  const form = document.getElementById('filter-form');
-  const grid = document.getElementById('products-gallery');
-  const allItems = Array.from(grid.children);
+  document.addEventListener('DOMContentLoaded', () => {
+    // Filter functionality
+    const form = document.getElementById('filter-form');
+    const grid = document.getElementById('products-gallery');
+    const allItems = Array.from(grid.querySelectorAll('.product-item'));
 
-  // Lọc khi radio thay đổi
-  form.addEventListener('change', (e) => {
-    const value = form.category.value;
-    
-    allItems.forEach(item => {
-      if (value === 'Tất cả' || item.dataset.category === value) {
-        item.style.display = '';
-      } else {
-        item.style.display = 'none';
-      }
+    // Filter when radio changes
+    form.addEventListener('change', (e) => {
+      const value = form.category.value;
+      
+      allItems.forEach(item => {
+        if (value === 'Tất cả' || item.dataset.category === value) {
+          item.style.display = '';
+        } else {
+          item.style.display = 'none';
+        }
+      });
     });
   });
 </script>
 
-<!-- Thêm PhotoSwipe script -->
+<!-- PhotoSwipe script -->
 <script type="module" src="/photoswipe-init.js"></script>
 
+<!-- Thêm script inline để đảm bảo photoswipe hoạt động -->
+<script is:inline>
+// Đảm bảo tạm dừng các link trong gallery khi dom loaded
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM loaded, setting up gallery prevention');
+  
+  // Chặn click mặc định trên tất cả các thẻ a trong gallery
+  const links = document.querySelectorAll('#products-gallery a');
+  links.forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      console.log('Prevented default link action', this.href);
+    });
+  });
+});
+</script>
+
 <style>
-  /* Tùy chỉnh màu cho radio button theo category */
+  /* Radio button styling by category color */
   input[type="radio"].btn::before {
     background-color: var(--cat-color, #cccccc);
+  }
+  
+  /* Product item animation */
+  .product-item {
+    @apply transform transition-all duration-200;
+  }
+  
+  .product-item:hover {
+    @apply -translate-y-1;
+  }
+  
+  /* Ensure PhotoSwipe has highest z-index */
+  .pswp {
+    z-index: 9999;
   }
 </style>

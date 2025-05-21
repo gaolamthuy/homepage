@@ -18,12 +18,72 @@
   }
 }
 
-/* PhotoSwipe styles */
+/* Gallery item styling */
+.gallery-item {
+  @apply bg-neutral-100 dark:bg-neutral-800 rounded-xl overflow-hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gallery-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Product item cursor */
+.product-item a {
+  cursor: zoom-in;
+}
+
+/* PhotoSwipe customizations */
+.pswp {
+  --pswp-bg: rgba(0, 0, 0, 0.85);
+  z-index: 9999;
+}
+
+.pswp img {
+  max-width: none;
+  object-fit: contain;
+}
+
 .pswp__img {
   object-fit: contain;
+}
+
+/* PhotoSwipe UI elements */
+.pswp__top-bar {
+  background: transparent !important;
+}
+
+.pswp__counter {
+  @apply text-white font-semibold;
+}
+
+.pswp__button--arrow--left,
+.pswp__button--arrow--right {
+  @apply bg-white/20 rounded-full p-3;
+}
+
+.pswp__caption {
+  @apply bg-black/70 backdrop-blur-md;
+}
+
+.pswp__caption__center {
+  @apply text-center font-semibold;
+}
+
+/* Dark mode specific PhotoSwipe styles */
+html.dark .pswp__bg {
+  --pswp-bg: rgba(0, 0, 0, 0.9);
+}
+
+html.dark .pswp__caption {
   background-color: rgba(0, 0, 0, 0.8);
 }
 
-.pswp__bg {
-  @apply bg-base-100/90 backdrop-blur-md;
+html.dark .pswp__counter,
+html.dark .pswp__caption__center {
+  color: #fff;
 }

@@ -49,14 +49,27 @@
     const currentTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', currentTheme);
     
-    // Cập nhật trạng thái checkbox
+    // Cập nhật trạng thái checkbox và dark class
     themeToggle.checked = currentTheme === 'light';
+    
+    if (currentTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
     
     // Xử lý khi toggle theme
     themeToggle.addEventListener('change', () => {
       const newTheme = themeToggle.checked ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme);
+      
+      // Toggle dark class for Tailwind
+      if (newTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
     });
   });
 </script>

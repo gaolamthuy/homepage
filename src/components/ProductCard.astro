@@ -18,36 +18,79 @@ const zoomUrl =
   product.image?.urls?.zoom ||
   product.image?.urls?.original ||
   product.placeholderUrl;
+
+// Lấy màu sắc từ category để làm border (và loại bỏ \r\n nếu có)
+const glt_color_border = product.category?.color 
+  ? product.category.color.replace('\\r\\n', '')
+  : '#F97316'; // Fallback to orange-500
 ---
-<a
-  href={zoomUrl}
-  data-pswp-width="1600"
-  data-pswp-height="1200"
-  target="_blank"
-  rel="noreferrer"
-  class="relative w-full overflow-hidden rounded-xl group block aspect-square"
+
+<div class="gallery-item">
+  <a
+    href={zoomUrl}
+    class="block w-full h-full relative aspect-square rounded-xl overflow-hidden group pswp-gallery__item"
+    data-pswp-width="1200"
+    data-pswp-height="1200"
+    data-pswp-src={zoomUrl}
+    data-cropped="true"
+    data-pswp-title={product.fullName}
+    data-fallback={product.placeholderUrl}
+  >
+    <img
+      src={thumbnailUrl}
+      alt={product.fullName}
+      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+      loading="lazy"
+      onerror="this.onerror=null; this.src=this.getAttribute('data-fallback');"
+      data-fallback={product.placeholderUrl}
+    />
+
+    <!-- Fullname label: góc trên trái - với border màu theo category -->
+<span
+  class="absolute top-2 left-2 bg-white text-gray-800 text-xs font-bold px-2 py-1 rounded shadow-md"
+  style={`color: ${glt_color_border}; backdrop-filter: blur(2px);`}
 >
-  <img
-    src={thumbnailUrl}
-    on:error={(e) => e.target.src = product.placeholderUrl}
-    alt={product.fullName}
-    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-    loading="lazy"
-  />
+  {product.fullName}
+</span>
 
-  <!-- Fullname label: góc trên trái -->
-  <span
-    class="absolute top-2 left-2 bg-black/70 text-white text-xs font-bold px-2 py-1 rounded shadow"
-    style="backdrop-filter: blur(2px);"
-  >
-    {product.fullName}
-  </span>
+<span
+  class="absolute bottom-2 right-2 bg-white text-gray-800 text-sm font-bold px-2 py-1 rounded shadow-md"
+  style={`color: ${glt_color_border}; backdrop-filter: blur(2px);`}
+>
+  {formatPrice(product.basePrice)} | {formatPrice(product.wholeP10Price)}
+</span>
 
-  <!-- Price label: dưới phải -->
-  <span
-    class="absolute bottom-2 right-2 bg-white/90 text-primary text-sm font-bold px-2 py-1 rounded shadow"
-    style="backdrop-filter: blur(2px);"
-  >
-    {formatPrice(product.basePrice)} | {formatPrice(product.wholeP10Price)}
-  </span>
-</a>
+  </a>
+</div>
+
+<style>
+  /* Thêm hiệu ứng hover cho các labels */
+  .gallery-item:hover span {
+    @apply shadow-lg;
+    transform: scale(1.03);
+    transition: all 0.2s ease;
+  }
+  
+  /* Đảm bảo transition mượt mà */
+  .gallery-item span {
+    transition: all 0.2s ease;
+  }
+  
+  /* Cursor for PhotoSwipe gallery items */
+  .pswp-gallery__item {
+    cursor: zoom-in;
+  }
+</style>
+
+<script>
+  // Script để ngăn chặn hành vi mặc định của link
+  document.addEventListener('DOMContentLoaded', () => {
+    const productLinks = document.querySelectorAll('.product-item a');
+    productLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log('Click prevented on product:', link.getAttribute('data-pswp-title'));
+      });
+    });
+  });
+</script>
