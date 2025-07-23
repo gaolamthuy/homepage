@@ -4,11 +4,10 @@
  */
 
 import type { Product, Category, ProductAttribute } from "@/types/shop";
+import { HOMEPAGE_API_URL } from "@/lib/config";
 
 // API URL từ environment variable
-const API_URL =
-  import.meta.env.PUBLIC_API_URL ||
-  "https://cdn.gaolamthuy.vn/homepage/data.json";
+const API_URL = HOMEPAGE_API_URL;
 
 /**
  * Fetch dữ liệu sản phẩm từ API
