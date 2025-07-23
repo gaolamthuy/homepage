@@ -43,7 +43,7 @@ npm run dev
 
 - Sửa file `.env`:
   ```
-  PUBLIC_API_URL=[hidden]
+  PUBLIC_API_URL=[hidden]  # Liên hệ admin để lấy link
   ```
 - Mọi fetch API đều tự động lấy bản mới nhất, không cache.
 
