@@ -1,36 +1,58 @@
 ---
-// API endpoint trả về danh sách sản phẩm
-import { HOMEPAGE_API_URL } from "@/lib/config";
+// API endpoint trả về danh sách sản phẩm từ external API
+// Sử dụng PUBLIC_API_URL từ environment variables
 
-export async function get() {
+export async function GET() {
   try {
-    const apiUrl = HOMEPAGE_API_URL + (HOMEPAGE_API_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
-    const response = await fetch(apiUrl, { cache: 'no-store' });
+    const apiUrl = import.meta.env.PUBLIC_API_URL + (import.meta.env.PUBLIC_API_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
+    
+    const response = await fetch(apiUrl, { 
+      cache: 'no-store',
+      headers: {
+        'User-Agent': 'Gaolamthuy-Homepage/1.0'
+      }
+    });
+    
     if (!response.ok) {
       return new Response(JSON.stringify([]), {
         status: 200,
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache"
+        }
       });
     }
+    
     let data = [];
     try {
-      data = await response.json();
+      const text = await response.text();
+      data = JSON.parse(text);
     } catch (jsonErr) {
       // Nếu JSON parse lỗi, trả về mảng rỗng
       return new Response(JSON.stringify([]), {
         status: 200,
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache"
+        }
       });
     }
+    
     return new Response(JSON.stringify(data), {
       status: 200,
-      headers: { "Content-Type": "application/json" }
+      headers: { 
+        "Content-Type": "application/json",
+        "Cache-Control": "no-cache"
+      }
     });
   } catch (err) {
     // Nếu có lỗi khác, cũng trả về mảng rỗng
     return new Response(JSON.stringify([]), {
       status: 200,
-      headers: { "Content-Type": "application/json" }
+      headers: { 
+        "Content-Type": "application/json",
+        "Cache-Control": "no-cache"
+      }
     });
   }
 }

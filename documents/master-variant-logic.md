@@ -2,7 +2,7 @@
 
 ## Tổng Quan
 
-Logic master/variant được xây dựng dựa trên dữ liệu thực tế từ API [gaolamthuy.vn](https://cdn.gaolamthuy.vn/homepage/data.json).
+Logic master/variant được xây dựng dựa trên dữ liệu thực tế từ API external được cấu hình trong .env file.
 
 ## Cấu Trúc Dữ Liệu
 

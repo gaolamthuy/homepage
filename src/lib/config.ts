@@ -92,8 +92,3 @@ export const APP_CONFIG = {
     address: "123 Đường ABC, Quận XYZ, TP.HCM",
   },
 };
-
-// API URL lấy data sản phẩm (fallback nếu .env chưa khai báo)
-export const HOMEPAGE_API_URL =
-  import.meta.env.PUBLIC_API_URL ||
-  "https://cdn.gaolamthuy.vn/homepage/data.json";

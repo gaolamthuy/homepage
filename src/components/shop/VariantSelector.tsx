@@ -41,15 +41,42 @@ export function VariantSelector({
       setLoading(true);
       setError(null);
 
-      const response = await fetch("/api/products");
+      // Fetch dữ liệu từ API endpoint được cấu hình trong .env
+      const apiUrl = import.meta.env.PUBLIC_API_URL + (import.meta.env.PUBLIC_API_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
+      
+      const response = await fetch(apiUrl, { 
+        cache: 'no-store',
+        headers: {
+          'User-Agent': 'Gaolamthuy-Homepage/1.0'
+        }
+      });
+      
       if (!response.ok) {
-        throw new Error("Không thể tải dữ liệu sản phẩm");
+        throw new Error(`API fetch failed: ${response.status} ${response.statusText}`);
       }
 
-      const allProducts: Product[] = await response.json();
+      let apiData: any;
+      try {
+        const text = await response.text();
+        apiData = JSON.parse(text);
+      } catch (jsonErr) {
+        setError("Dữ liệu sản phẩm không hợp lệ hoặc API trả về rỗng");
+        setVariants([]);
+        setLoading(false);
+        return;
+      }
+
+      // Parse structure: data[0].products từ API response
+      const allProducts = apiData[0]?.products || [];
+
+      if (!Array.isArray(allProducts) || allProducts.length === 0) {
+        setVariants([]);
+        setLoading(false);
+        return;
+      }
 
       // Logic tìm variants dựa trên hasVariants và masterProductId
-      let productVariants: Product[] = [];
+      let productVariants: any[] = [];
 
       if (currentProduct.hasVariants === false) {
         // Sản phẩm độc lập, không có variants
@@ -60,20 +87,23 @@ export function VariantSelector({
       ) {
         // Master product - tìm tất cả variants có masterProductId = currentProduct.id
         productVariants = allProducts.filter(
-          (product) => product.masterProductId === parseInt(currentProduct.id)
+          (product: any) => product.masterProductId === parseInt(currentProduct.id)
         );
         // Thêm master product vào danh sách
-        productVariants.unshift(currentProduct);
+        const masterFromAPI = allProducts.find((p: any) => p.id === parseInt(currentProduct.id));
+        if (masterFromAPI) {
+          productVariants.unshift(masterFromAPI);
+        }
       } else if (
         currentProduct.hasVariants === true &&
         currentProduct.masterProductId
       ) {
         // Variant product - tìm master và các variant khác cùng master
         const masterProduct = allProducts.find(
-          (p) => p.id === currentProduct.masterProductId?.toString()
+          (p: any) => p.id === currentProduct.masterProductId
         );
         const otherVariants = allProducts.filter(
-          (product) =>
+          (product: any) =>
             product.masterProductId === currentProduct.masterProductId
         );
 
@@ -84,10 +114,38 @@ export function VariantSelector({
         }
       }
 
-      setVariants(productVariants);
+      // Convert API data to Product format
+      const mappedVariants = productVariants.map((apiProduct: any) => ({
+        id: String(apiProduct.id),
+        name: apiProduct.name || apiProduct.fullName || "Sản phẩm không tên",
+        fullName: apiProduct.fullName,
+        description: apiProduct.description || "Không có mô tả",
+        price: apiProduct.basePrice || 0,
+        images: apiProduct.images || [],
+        category: apiProduct.categoryName || "Khác",
+        tags: (apiProduct.attributes || []).map((attr: any) => attr.attributeValue),
+        inStock: apiProduct.allowsSale && apiProduct.isActive,
+        stockQuantity: apiProduct.weight || 0,
+        rating: 5,
+        reviewCount: 0,
+        createdAt: new Date(apiProduct.createdDate || Date.now()),
+        updatedAt: new Date(apiProduct.modifiedDate || Date.now()),
+        attributes: apiProduct.attributes || [],
+        code: apiProduct.code,
+        categoryId: apiProduct.categoryId,
+        allowsSale: apiProduct.allowsSale,
+        hasVariants: apiProduct.hasVariants,
+        unit: apiProduct.unit,
+        isActive: apiProduct.isActive,
+        masterProductId: apiProduct.masterProductId,
+        glt: apiProduct.glt,
+      }));
+
+      setVariants(mappedVariants);
     } catch (err) {
       console.error("Error loading variants:", err);
       setError(err instanceof Error ? err.message : "Lỗi không xác định");
+      setVariants([]);
     } finally {
       setLoading(false);
     }
@@ -99,7 +157,7 @@ export function VariantSelector({
     }
   };
 
-  // Không hiển thị nếu chỉ có 1 sản phẩm hoặc đang loading
+  // Hiển thị loading state
   if (loading) {
     return (
       <div className={`space-y-4 ${className}`}>
@@ -118,6 +176,7 @@ export function VariantSelector({
     );
   }
 
+  // Hiển thị error state
   if (error) {
     return (
       <div className={`space-y-4 ${className}`}>
@@ -175,7 +234,7 @@ export function VariantSelector({
             >
               {/* Tên variant */}
               <div className="font-medium text-sm mb-1 flex items-center gap-2">
-                <span>{variant.fullName}</span>
+                <span>{variant.fullName || variant.name}</span>
                 {isSelected && (
                   <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
                 )}

@@ -26,7 +26,18 @@ let variants: any[] = [];
 try {
   const apiUrl = import.meta.env.PUBLIC_API_URL + (import.meta.env.PUBLIC_API_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
   const allProductsResponse = await fetch(apiUrl, { cache: 'no-store' });
-  const allProductsData = await allProductsResponse.json();
+  let allProductsData = [];
+  if (allProductsResponse.ok) {
+    try {
+      allProductsData = await allProductsResponse.json();
+    } catch (jsonErr) {
+      console.error('Error parsing products API JSON:', jsonErr);
+      allProductsData = [];
+    }
+  } else {
+    console.error('Error loading variants: API response not ok', allProductsResponse.status, allProductsResponse.statusText);
+    allProductsData = [];
+  }
   const allProducts = allProductsData[0]?.products || [];
 
   // Tìm variants của sản phẩm hiện tại
@@ -45,6 +56,7 @@ try {
   }
 } catch (error) {
   console.error('Error loading variants:', error);
+  variants = [];
 }
 
 // SEO

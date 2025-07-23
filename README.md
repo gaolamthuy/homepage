@@ -9,6 +9,17 @@ Xây dựng với **Astro**, **React**, **Tailwind CSS**, hỗ trợ Light/Dark 
 
 ---
 
+## 📝 About
+
+- **Website:** [https://gaolamthuy.vn](https://gaolamthuy.vn)
+- **Contact:** info@gaolamthuy.vn
+- **Facebook:** [fb.com/gaolamthuy](https://fb.com/gaolamthuy)
+- **Zalo:** [zalo.me/gaolamthuy](https://zalo.me/gaolamthuy)
+- **Team:** Gạo Lâm Thúy Dev Team
+- **Mục tiêu:** Cung cấp nền tảng bán gạo sạch, tối ưu trải nghiệm người dùng, vận hành ổn định, bảo mật và dễ mở rộng.
+
+---
+
 ## 🚀 Tính năng nổi bật
 
 - **Giao diện hiện đại**: Chuẩn UI/UX, tối ưu mobile, desktop.
@@ -43,9 +54,10 @@ npm run dev
 
 - Sửa file `.env`:
   ```
-  PUBLIC_API_URL=[hidden]  # Liên hệ admin để lấy link
+  PUBLIC_API_URL=YOUR_API_ENDPOINT_HERE
   ```
 - Mọi fetch API đều tự động lấy bản mới nhất, không cache.
+- Liên hệ admin để lấy API endpoint chính thức.
 
 ## 📁 Cấu trúc dự án
 
@@ -84,7 +96,9 @@ npm run dev
 
 ## 📄 License
 
-MIT License
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+
+Copyright (c) 2024 Gạo Lâm Thúy
 
 ---
 

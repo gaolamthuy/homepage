@@ -43,9 +43,10 @@ npm run dev
 
 - Sửa file `.env`:
   ```
-  PUBLIC_API_URL=https://cdn.gaolamthuy.vn/homepage/data.json
+  PUBLIC_API_URL=YOUR_API_ENDPOINT_HERE
   ```
 - Mọi fetch API đều tự động lấy bản mới nhất, không cache.
+- Liên hệ admin để lấy API endpoint chính thức.
 
 ## 📁 Cấu trúc dự án
 
