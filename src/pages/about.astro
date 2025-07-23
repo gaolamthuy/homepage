@@ -1,0 +1,133 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import Breadcrumb from '@/components/Breadcrumb';
+---
+<Layout title="Giới thiệu về Gạo Lâm Thúy" description="Thông tin về thương hiệu Gạo Lâm Thúy, sứ mệnh, giá trị và cam kết.">
+  <div class="container mx-auto px-4 py-12">
+    <Breadcrumb items={[{ label: 'Trang chủ', href: '/' }, { label: 'Giới thiệu' }]} />
+    <div class="flex flex-col items-center mb-8">
+      <img src="/src/assets/logo-main-hexagon-extrawhiteborder-forproductimage.svg" alt="Gạo Lâm Thúy Logo" class="w-32 h-32 mb-4" />
+      <h1 class="text-3xl font-bold mb-2 text-center">Giới thiệu về Gạo Lâm Thúy</h1>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-8 flex flex-col gap-6 relative text-lg border border-gray-100 dark:border-slate-700">
+        <h2 class="text-xl font-semibold mb-2 flex items-center gap-2 text-gray-900 dark:text-white">
+          <!-- Icon contact/user -->
+          <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 14c-4.418 0-8 1.79-8 4v2h16v-2c0-2.21-3.582-4-8-4z"/></svg>
+          Thông tin liên hệ
+        </h2>
+        <button
+          id="copy-contact-btn"
+          class="absolute top-4 right-4 text-xs text-gray-500 dark:text-gray-300 hover:underline hover:text-primary dark:hover:text-primary transition px-2 py-1 rounded focus:outline-none bg-transparent"
+          style="min-width:60px;"
+          title="Copy thông tin liên hệ"
+        >Copy</button>
+        <div class="flex flex-col gap-2 text-base text-gray-800 dark:text-gray-200">
+          <div class="flex items-center gap-2 text-primary">
+            <a href="tel:0901467300" class="flex items-center hover:underline">
+              0901 467 300
+            </a>
+            <a href="https://zalo.me/0901467300" target="_blank" rel="noopener" class="inline-block align-middle hover:opacity-80 transition-opacity">
+              <img src="/src/assets/icons/icons8-zalo.svg" alt="Zalo" class="w-8 h-8" />
+            </a>
+          </div>
+          <div>
+          <a href="https://maps.app.goo.gl/oVAN7ZoPcL2BGQxt7" target="_blank" rel="n  oopener" class="flex items-center gap-2 text-primary hover:underline">23 Nguyễn Đình Chiểu, Phường 4, Quận Phú Nhuận, TP.HCM</a>
+          </div>
+        </div>
+        <div class="flex gap-4 mt-4">
+          <a href="https://facebook.com/gaolamthuy" target="_blank" rel="noopener" class="hover:opacity-80">
+            <img src="/src/assets/icons/icons8-facebook.svg" alt="Facebook" class="w-8 h-8" />
+          </a>
+          <a href="https://zalo.me/567000711935281744" target="_blank" rel="noopener" class="hover:opacity-80">
+            <img src="/src/assets/icons/icons8-zalo.svg" alt="Zalo" class="w-8 h-8" />
+          </a>
+        </div>
+      </div>
+      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-8 flex flex-col gap-6 relative text-lg border border-gray-100 dark:border-slate-700">
+        <h2 class="text-xl font-semibold mb-2 flex items-center gap-2 text-gray-900 dark:text-white">
+          <!-- Đổi icon người sang building -->
+        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 21V9.75A2.25 2.25 0 0 1 5.25 7.5h13.5A2.25 2.25 0 0 1 21 9.75V21M3 21h18M9 21v-3.75A1.25 1.25 0 0 1 10.25 16h3.5A1.25 1.25 0 0 1 15 17.25V21"/>
+        </svg>
+          Thông tin doanh nghiệp
+        </h2>
+        <button
+          id="copy-company-btn"
+          class="absolute top-4 right-4 text-xs text-gray-500 dark:text-gray-300 hover:underline hover:text-primary dark:hover:text-primary transition px-2 py-1 rounded focus:outline-none bg-transparent"
+          style="min-width:60px;"
+          title="Copy thông tin doanh nghiệp"
+        >Copy</button>
+        <div class="flex flex-col gap-2 text-base text-gray-800 dark:text-gray-200">
+          <div class="flex items-center gap-2">Công ty TNHH Gạo Lâm Thuý</div>
+          <div class="flex items-center gap-2">Mã số thuế: 0316991815</div>
+          <div class="flex items-center gap-2">23 Nguyễn Đình Chiểu, Phường 4, Quận Phú Nhuận, TP.HCM</div>
+          <div class="flex items-center gap-2"><a href="mailto:lienhe@gaolamthuy.vn" class="text-primary hover:underline">lienhe@gaolamthuy.vn</a></div>
+        </div>
+      </div>
+      <!-- Card Thông tin thanh toán -->
+      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-8 flex flex-col gap-6 relative text-lg border border-gray-100 dark:border-slate-700">
+        <h2 class="text-xl font-semibold mb-4 flex items-center gap-2 text-gray-900 dark:text-white">
+          <!-- Icon banknote/banknote-arrow-up -->
+          <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="10" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M12 12v-3m0 0-2 2m2-2 2 2" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2" stroke="currentColor" stroke-width="2"/></svg>
+          Thông tin thanh toán
+        </h2>
+        <button
+          id="copy-payment-btn"
+          class="absolute top-4 right-4 text-xs text-gray-500 dark:text-gray-300 hover:underline hover:text-primary dark:hover:text-primary transition px-2 py-1 rounded focus:outline-none bg-transparent"
+          style="min-width:60px;"
+          title="Copy thông tin thanh toán"
+        >Copy</button>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+          <div class="flex flex-col gap-2 text-base text-gray-800 dark:text-gray-200 text-center">
+            <div>Vietcombank</div>
+            <div class="font-semibold text-primary">1012 842 851</div>
+            <div class="text-gray-700 dark:text-gray-300">Ho Pham Lam</div>
+          </div>
+          <div class="flex justify-center md:justify-end">
+            <img src="/src/assets/vietqr-1012842851.png" alt="QR Vietcombank" class="w-32 h-32 rounded-md border border-gray-200 dark:border-gray-700 bg-white" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script is:inline>
+    document.addEventListener('DOMContentLoaded', function () {
+      function copyWithFeedback(btnId, text) {
+        navigator.clipboard.writeText(text);
+        const btn = document.getElementById(btnId);
+        if (!btn) return;
+        const original = btn.innerText;
+        btn.innerText = 'Đã copy!';
+        btn.classList.add('text-green-600');
+        setTimeout(() => {
+          btn.innerText = original;
+          btn.classList.remove('text-green-600');
+        }, 1500);
+      }
+      // Gán lại event cho các nút copy (Astro có thể tách context script)
+      const contactBtn = document.getElementById('copy-contact-btn');
+      if (contactBtn) {
+        contactBtn.addEventListener('click', function (e) {
+          e.preventDefault();
+          copyWithFeedback('copy-contact-btn', '0901467300 - Lâm\n23 Nguyễn Đình Chiểu, Phường 4, Quận Phú Nhuận, TP.HCM');
+        });
+      }
+      const companyBtn = document.getElementById('copy-company-btn');
+      if (companyBtn) {
+        companyBtn.addEventListener('click', function (e) {
+          e.preventDefault();
+          copyWithFeedback('copy-company-btn', 'Công ty TNHH Gạo Lâm Thúy\n0316991815\n23 Nguyễn Đình Chiểu, Phường 4, Quận Phú Nhuận, TP.HCM\nlienhe@gaolamthuy.vn');
+        });
+      }
+      // Gán lại event cho nút copy thanh toán
+      const paymentText = `Vietcombank\n1012 842 851\nHo Pham Lam`;
+      const paymentBtn = document.getElementById('copy-payment-btn');
+      if (paymentBtn) {
+        paymentBtn.addEventListener('click', function () {
+          copyWithFeedback('copy-payment-btn', 'Vietcombank\n1012842851\nHo Pham Lam');
+        });
+      }
+    });
+  </script>
+</Layout> 

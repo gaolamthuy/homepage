@@ -1,0 +1,48 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { getAllProducts, getAllCategories } from '@/lib/shop/mockData';
+import ProductFilterGrid from '@/components/shop/ProductFilterGrid';
+import type { Product, Category } from '@/types/shop';
+import { sortProductsByCategoryAndPrice } from '../lib/shop/utils';
+import Breadcrumb from '@/components/Breadcrumb';
+
+// Fetch dữ liệu sản phẩm và danh mục từ API
+const products = await getAllProducts();
+const categories = await getAllCategories();
+
+// Fetch tất cả sản phẩm từ API để lấy attributes của variants
+let allProductsFromAPI: any[] = [];
+try {
+  const apiUrl = import.meta.env.PUBLIC_API_URL + (import.meta.env.PUBLIC_API_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
+  const response = await fetch(apiUrl, { cache: 'no-store' });
+  const data = await response.json();
+  allProductsFromAPI = data[0]?.products || [];
+} catch (error) {
+  console.error('Error fetching all products:', error);
+}
+
+// Sort products 2 cấp: theo category rồi theo name
+const sortedProducts = sortProductsByCategoryAndPrice(products);
+
+// SEO meta
+const title = 'Tất cả sản phẩm - Gạo Lâm Thúy';
+const description = 'Xem toàn bộ sản phẩm thực tế, đa dạng chủng loại. Gạo nở, gạo dẻo, gạo chính hãng và nhiều hơn nữa.';
+---
+<Layout title={title} description={description}>
+  <div class="min-h-screen bg-background">
+    <div class="container mx-auto px-4 py-8">
+      <Breadcrumb items={[{ label: 'Trang chủ', href: '/' }, { label: 'Sản phẩm' }]} />
+    </div>
+    <div class="container mx-auto px-4 py-8">
+      <ProductFilterGrid
+        client:load
+        products={sortedProducts}
+        categories={categories}
+        allProductsFromAPI={allProductsFromAPI}
+        showAttributes={true}
+        showOrderButton={false}
+        maxItems={undefined}
+      />
+    </div>
+  </div>
+</Layout> 

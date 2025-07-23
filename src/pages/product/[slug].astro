@@ -1,0 +1,63 @@
+---
+// Product detail page
+import Layout from "@/layouts/Layout.astro";
+import { getAllProducts } from "@/lib/shop/mockData";
+import { formatPrice } from "@/lib/shop/utils";
+import type { Product } from "@/types/shop";
+import ProductDetail from "@/components/shop/ProductDetail";
+import Breadcrumb from '@/components/Breadcrumb';
+
+// Lấy slug từ URL params
+export async function getStaticPaths() {
+  const products = await getAllProducts();
+  
+  return products.map((product) => ({
+    params: { 
+      slug: product.glt?.glt_slug || product.code || product.id 
+    },
+    props: { product },
+  }));
+}
+
+const { product } = Astro.props;
+
+// Load tất cả sản phẩm để tìm variants
+let variants: any[] = [];
+try {
+  const apiUrl = import.meta.env.PUBLIC_API_URL + (import.meta.env.PUBLIC_API_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
+  const allProductsResponse = await fetch(apiUrl, { cache: 'no-store' });
+  const allProductsData = await allProductsResponse.json();
+  const allProducts = allProductsData[0]?.products || [];
+
+  // Tìm variants của sản phẩm hiện tại
+  if (product.hasVariants === true && !product.masterProductId) {
+    // Master product - tìm variants
+    variants = allProducts.filter((p: any) => p.masterProductId === parseInt(product.id));
+  } else if (product.hasVariants === true && product.masterProductId) {
+    // Variant product - tìm master và variants khác
+    const masterProduct = allProducts.find((p: any) => p.id === product.masterProductId);
+    const otherVariants = allProducts.filter((p: any) => p.masterProductId === product.masterProductId);
+    if (masterProduct) {
+      variants = [masterProduct, ...otherVariants];
+    } else {
+      variants = otherVariants;
+    }
+  }
+} catch (error) {
+  console.error('Error loading variants:', error);
+}
+
+// SEO
+const title = `${product.fullName || product.name} - Gạo Lâm Thúy`;
+const description = product.description || `Thông tin chi tiết về ${product.fullName || product.name}`;
+const image = product.images[0] || "/placeholder-product.jpg";
+---
+
+<Layout title={title} description={description}>
+  <div class="container mx-auto px-4 py-8">
+    <Breadcrumb items={[{ label: 'Trang chủ', href: '/' }, { label: 'Sản phẩm', href: '/products' }, { label: product.fullName || product.name }]} />
+    <!-- Product Detail Component -->
+    <ProductDetail client:load product={product} />
+    <!-- Variant Selector -->
+  </div>
+</Layout> 

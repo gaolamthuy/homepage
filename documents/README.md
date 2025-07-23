@@ -5,7 +5,7 @@ Xây dựng với **Astro**, **React**, **Tailwind CSS**, hỗ trợ Light/Dark 
 
 [![Astro](https://img.shields.io/badge/Astro-Framework-blueviolet)](https://astro.build/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-Utility--First-38bdf8)](https://tailwindcss.com/)
-[![MIT License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
+[![MIT License](https://img.shields.io/badge/license-MIT-green)](../LICENSE)
 
 ---
 
@@ -43,7 +43,7 @@ npm run dev
 
 - Sửa file `.env`:
   ```
-  PUBLIC_API_URL=[hidden]
+  PUBLIC_API_URL=https://cdn.gaolamthuy.vn/homepage/data.json
   ```
 - Mọi fetch API đều tự động lấy bản mới nhất, không cache.
 
@@ -65,16 +65,16 @@ npm run dev
 
 ## 📚 Tài liệu nội bộ
 
-- [Hướng dẫn theme](./documents/theme-guide.md)
-- [API data update](./documents/api-data-update.md)
-- [Master/Variant logic](./documents/master-variant-logic.md)
-- [Product attributes display](./documents/product-attributes-display.md)
-- [Components guide](./documents/components-guide.md)
-- [Setup complete](./documents/setup-complete.md)
-- [Remove shop features](./documents/remove-shop-features.md)
-- [Variant selector](./documents/variant-selector.md)
-- [Product page](./documents/product-page.md)
-- [Simplified ProductCard](./documents/simplified-product-card.md)
+- [Hướng dẫn theme](./theme-guide.md)
+- [API data update](./api-data-update.md)
+- [Master/Variant logic](./master-variant-logic.md)
+- [Product attributes display](./product-attributes-display.md)
+- [Components guide](./components-guide.md)
+- [Setup complete](./setup-complete.md)
+- [Remove shop features](./remove-shop-features.md)
+- [Variant selector](./variant-selector.md)
+- [Product page](./product-page.md)
+- [Simplified ProductCard](./simplified-product-card.md)
 
 ## 📝 Đóng góp
 

@@ -1,11 +1,116 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+// Trang chủ - Hiển thị tất cả sản phẩm
+import Layout from '@/layouts/Layout.astro';
+import { getAllProducts, getAllCategories } from '@/lib/shop/mockData';
+import ProductFilterGrid from '@/components/shop/ProductFilterGrid';
+import type { Product, Category } from '@/types/shop';
+import { sortProductsByCategoryAndPrice } from '../lib/shop/utils';
+import Breadcrumb from '@/components/Breadcrumb';
+import PhotoGallery from '@/components/PhotoGallery';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// Gallery images data (bảng giá)
+const pricetableImages = [
+  { src: "https://cdn.gaolamthuy.vn/price-tables/price-table-retail-133275.jpeg", alt: "Bảng giá bán lẻ Gạo dẻo", width: 1200, height: 1600 },
+  { src: "https://cdn.gaolamthuy.vn/price-tables/price-table-retail-132086.jpeg", alt: "Bảng giá bán lẻ Gạo nở", width: 1200, height: 1600 },
+  { src: "https://cdn.gaolamthuy.vn/price-tables/price-table-retail-133392.jpeg", alt: "Bảng giá bán lẻ Gạo chính hãng", width: 1200, height: 1600 },
+  { src: "https://cdn.gaolamthuy.vn/price-tables/price-table-retail-133393.jpeg", alt: "Bảng giá bán lẻ Tấm", width: 1200, height: 1600 },
+  { src: "https://cdn.gaolamthuy.vn/price-tables/price-table-retail-133394.jpeg", alt: "Bảng giá bán lẻ Nếp", width: 1200, height: 1600 },
+  { src: "https://cdn.gaolamthuy.vn/price-tables/price-table-retail-178627.jpeg", alt: "Bảng giá bán lẻ Lúa - Gạo Lứt", width: 1200, height: 1600 },
+  { src: "https://cdn.gaolamthuy.vn/price-tables/price-table-wholesale-page-1.jpeg", alt: "Bảng giá sỉ trang 1", width: 1200, height: 1600 },
+  { src: "https://cdn.gaolamthuy.vn/price-tables/price-table-wholesale-page-2.jpeg", alt: "Bảng giá sỉ trang 2", width: 1200, height: 1600 },
+];
+
+// Fetch dữ liệu sản phẩm và danh mục từ API
+const products = await getAllProducts();
+const categories = await getAllCategories();
+
+// Fetch tất cả sản phẩm từ API để lấy attributes của variants
+let allProductsFromAPI: any[] = [];
+try {
+  const apiUrl = import.meta.env.PUBLIC_API_URL + (import.meta.env.PUBLIC_API_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
+  const response = await fetch(apiUrl, { cache: 'no-store' });
+  const data = await response.json();
+  allProductsFromAPI = data[0]?.products || [];
+} catch (error) {
+  console.error('Error fetching all products:', error);
+}
+
+// Sort products 2 cấp: theo category rồi theo name
+const sortedProducts = sortProductsByCategoryAndPrice(products);
+
+// SEO meta
+const title = 'Gạo Lâm Thúy - Cửa hàng trực tuyến';
+const description = 'Danh sách sản phẩm thực tế, đa dạng chủng loại. Gạo nở, gạo dẻo, gạo chính hãng và nhiều hơn nữa.';
 ---
 
-<Layout>
-	<Welcome />
+<Layout title={title} description={description}>
+  <div class="min-h-screen">
+    <!-- Hero Section Remake -->
+    <section class="relative w-full py-20 md:py-28 text-center overflow-hidden">
+      <!-- Background Gradient & Decor -->
+      <div class="absolute inset-0 -z-10 bg-slate-50 dark:bg-slate-900 transition-colors duration-300"></div>
+      <div class="absolute inset-0 -z-10 bg-gradient-to-br from-primary/5 via-transparent to-transparent"></div>
+      <div class="absolute inset-0 -z-10 dark:bg-gradient-to-br dark:from-primary/10 dark:via-transparent dark:to-transparent"></div>
+      <div class="absolute inset-0 -z-20 opacity-5 dark:opacity-10 [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)]">
+        <svg class="absolute inset-0 h-full w-full stroke-gray-900/10 dark:stroke-white/10" aria-hidden="true">
+            <defs>
+                <pattern id="grid-pattern" width="64" height="64" patternUnits="userSpaceOnUse" x="100%" y="100%" patternTransform="translate(0 -1)">
+                    <path d="M.5 64V.5H64" fill="none"></path>
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" stroke-width="0" fill="url(#grid-pattern)"></rect>
+        </svg>
+      </div>
+
+      <div class="container mx-auto px-4">
+
+        <!-- Headline -->
+        <h1 class="text-4xl md:text-6xl font-extrabold mb-6 leading-tight max-w-4xl mx-auto">
+          Mang Bữa Cơm Ngon<br>Đến Mọi Gia Đình
+        </h1>
+
+        <!-- Sub-headline -->
+        <p class="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
+          Khám phá các loại gạo tấm nếp từ Gạo Lâm Thúy. Chất lượng đảm bảo, giá cả phải chăng và giao hàng nhanh chóng.
+        </p>
+
+        <!-- CTAs -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <button
+            type="button"
+            class="px-8 py-4 rounded-full bg-primary text-primary-foreground font-bold text-lg shadow-lg shadow-primary/20 hover:bg-primary/90 hover:shadow-primary/30 transform hover:-translate-y-0.5 transition-all duration-300"
+            onclick="window.dispatchEvent(new CustomEvent('open-home-gallery'))"
+          >
+            Xem bảng giá
+          </button>
+          <a
+            href="/about"
+            class="px-8 py-4 rounded-full border-2 border-slate-300 dark:border-slate-700 text-foreground font-bold text-lg bg-transparent hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors duration-300"
+          >
+            Về chúng tôi
+          </a>
+        </div>
+      </div>
+
+      <!-- PhotoSwipe gallery (remains hidden) -->
+      <div id="home-gallery-photoswipe" class="hidden">
+        <PhotoGallery client:load images={pricetableImages} />
+      </div>
+      <script is:inline>
+        window.addEventListener('open-home-gallery', () => {
+          const gallery = document.querySelector('#home-gallery-photoswipe img');
+          if (gallery) gallery.click();
+        });
+      </script>
+    </section>
+    <ProductFilterGrid
+      client:load
+      products={sortedProducts}
+      categories={categories}
+      allProductsFromAPI={allProductsFromAPI}
+      showAttributes={true}
+      showOrderButton={false}
+      maxItems={10}
+    />
+  </div>
 </Layout>

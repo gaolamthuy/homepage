@@ -1,0 +1,10 @@
+---
+// API endpoint trả về danh sách sản phẩm
+import { getAllProducts } from "@/lib/productIntro/mockData";
+
+try {
+  // Lấy tất cả sản phẩm từ API thật (không chỉ master)
+  const apiUrl = import.meta.env.PUBLIC_API_URL + (import.meta.env.PUBLIC_API_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
+  const response = await fetch(apiUrl, { cache: 'no-store' });
+  if (!response.ok) {
+    throw new Error(`

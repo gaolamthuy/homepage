@@ -1,22 +1,157 @@
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
-</html>
+---
+// Import global styles
+import '../styles/global.css';
+import ThemeToggle from '../components/ThemeToggle';
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>
+// Props interface
+export interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+}
+
+const { title, description = 'Shop Online - Cửa hàng trực tuyến chất lượng cao', image } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/svg+xml" href="/src/assets/logo-main-hexagon-extrawhiteborder-forproductimage.svg" />
+    <meta name="generator" content={Astro.generator} />
+    
+    <!-- SEO Meta Tags -->
+    <title>{title}</title>
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {image && <meta property="og:image" content={image} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {image && <meta name="twitter:image" content={image} />}
+    
+    <!-- Preconnect to external domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  </head>
+  <body class="min-h-screen bg-white dark:bg-slate-900 font-sans antialiased transition-colors duration-200">
+    <div class="relative flex min-h-screen flex-col items-center">
+      <!-- Header -->
+      <header class="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-slate-900/60">
+        <div class="w-full max-w-7xl mx-auto px-4">
+          <!-- Main Header -->
+          <div class="flex items-center justify-between py-4">
+            <!-- Hamburger (mobile) -->
+            <div class="flex items-center md:hidden mr-2">
+              <button class="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-md transition-colors">
+                <svg class="w-8 h-8 text-gray-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+              </button>
+            </div>
+            <!-- Logo -->
+            <div class="flex items-center gap-2">
+              <a href="/" class="flex items-center gap-2 group">
+                <img src="/src/assets/logo-main-hexagon-extrawhiteborder-forproductimage.svg" alt="Gạo Lâm Thúy Logo" class="w-14 h-14 group-hover:scale-105 transition-transform" />
+                <div>
+                  <h1 class="text-xl font-bold text-gray-900 dark:text-white">Gạo Lâm Thúy</h1>
+                  <p class="text-xs text-gray-600 dark:text-slate-400">Gạo ngon - Giá tốt - Giao tận nơi</p>
+                </div>
+              </a>
+            </div>
+            <!-- Search Bar -->
+            <div class="hidden md:flex flex-1 max-w-md mx-8">
+              <div class="relative w-full">
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm sản phẩm..."
+                  class="w-full px-4 py-2 pl-10 pr-4 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-slate-400 focus:border-transparent placeholder-gray-500 dark:placeholder-slate-400"
+                />
+                <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </div>
+            </div>
+            <!-- Actions -->
+            <div class="flex items-center gap-4">
+              <!-- Theme Toggle -->
+              <ThemeToggle client:load />
+              <!-- (Hamburger ẩn trên md trở lên) -->
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="flex-1 w-full max-w-6xl mx-auto px-4">
+        <slot />
+      </main>
+
+      <!-- Footer -->
+      <footer class="border-t border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 w-full">
+        <div class="w-full max-w-7xl mx-auto px-4 py-12">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Company Info -->
+            <div class="space-y-4">
+              <div class="flex items-center gap-2">
+                <a href="/" class="flex items-center gap-2 group">
+                  <img src="/src/assets/logo-main-hexagon-extrawhiteborder-forproductimage.svg" alt="Gạo Lâm Thúy Logo" class="w-14 h-14 group-hover:scale-105 transition-transform" />
+                  <h3 class="text-lg font-bold text-gray-900 dark:text-white">Gạo Lâm Thúy</h3>
+                </a>
+              </div>
+              <p class="text-sm text-gray-600 dark:text-slate-400">
+                Gạo chất lượng cao, đa dạng chủng loại, giao hàng tận nơi toàn quốc.
+              </p>
+              <div class="flex gap-4">
+                <a href="https://facebook.com/gaolamthuy" target="_blank" rel="noopener" class="hover:opacity-80">
+                  <img src="/src/assets/icons/icons8-facebook.svg" alt="Facebook" class="w-8 h-8" />
+                </a>
+                <a href="https://zalo.me/567000711935281744" target="_blank" rel="noopener" class="hover:opacity-80">
+                  <img src="/src/assets/icons/icons8-zalo.svg" alt="Zalo" class="w-8 h-8" />
+                </a>
+              </div>
+            </div>
+
+            <!-- Customer Service -->
+            <div class="space-y-4">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Hỗ trợ khách hàng</h3>
+              <ul class="space-y-2 text-sm">
+                <li><a href="/help" class="text-gray-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors">Trung tâm trợ giúp</a></li>
+                <li><a href="/shipping" class="text-gray-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors">Chính sách vận chuyển</a></li>
+                <li><a href="/return" class="text-gray-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors">Chính sách đổi trả</a></li>
+                <li><a href="/warranty" class="text-gray-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors">Chính sách bảo hành</a></li>
+                <li><a href="/privacy" class="text-gray-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors">Chính sách bảo mật</a></li>
+                <li><a href="/terms" class="text-gray-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors">Điều khoản sử dụng</a></li>
+              </ul>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="space-y-4">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Thông tin liên hệ</h3>
+              <div class="space-y-2 text-sm text-gray-600 dark:text-slate-400">
+                <div class="flex items-center gap-2">
+                  <a href="tel:0901467300" class="hover:underline text-primary">0901 467 300</a>
+                  <a href="https://zalo.me/0901467300" target="_blank" rel="noopener" class="inline-block align-middle hover:opacity-80 transition-opacity ml-1">
+                    <img src="/src/assets/icons/icons8-zalo.svg" alt="Zalo" class="w-8 h-8" />
+                  </a>
+                </div>
+          <div>
+          <a href="https://maps.app.goo.gl/oVAN7ZoPcL2BGQxt7" target="_blank" rel="n  oopener" class="flex items-center gap-2 text-primary hover:underline">23 Nguyễn Đình Chiểu, Phường 4, Quận Phú Nhuận, TP.HCM</a>
+          </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Footer -->
+          <div class="border-t border-gray-200 dark:border-slate-700 mt-8 pt-8 text-center text-sm text-gray-600 dark:text-slate-400">
+            <p>&copy; 2024 Gạo Lâm Thúy </p>
+            <p>Made with 💗</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
