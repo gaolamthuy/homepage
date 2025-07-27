@@ -20,8 +20,8 @@ async function fetchProductsFromAPI(): Promise<any[]> {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
-    // Lấy products từ item đầu tiên của array
-    return data[0]?.products || [];
+    // Lấy products trực tiếp từ object response
+    return data.products || [];
   } catch (error) {
     console.error("Lỗi khi fetch products từ API:", error);
     return [];
@@ -121,8 +121,8 @@ export async function getAllCategories(): Promise<Category[]> {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
-    // Lấy categories từ item thứ hai của array và filter theo glt_is_active = true
-    const categoriesData = data[1]?.product_categories || [];
+    // Lấy categories trực tiếp từ object response và filter theo glt_is_active = true
+    const categoriesData = data.product_categories || [];
 
     // Filter chỉ lấy những danh mục có glt_is_active = true
     const activeCategories = categoriesData.filter(

@@ -38,7 +38,7 @@ try {
     console.error('Error loading variants: API response not ok', allProductsResponse.status, allProductsResponse.statusText);
     allProductsData = [];
   }
-  const allProducts = allProductsData[0]?.products || [];
+  const allProducts = allProductsData.products || [];
 
   // Tìm variants của sản phẩm hiện tại
   if (product.hasVariants === true && !product.masterProductId) {

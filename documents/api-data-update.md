@@ -14,9 +14,9 @@ Dự án đã được cập nhật để sử dụng API mới từ `[hidden]` 
 
 ### Cấu Trúc Dữ Liệu
 
-API trả về một array chứa 2 phần tử:
+API trả về một object chứa 2 key chính:
 
-1. **Item 1**: Chứa danh sách sản phẩm
+1. **products**: Chứa danh sách sản phẩm
 
    ```json
    {
@@ -37,7 +37,7 @@ API trả về một array chứa 2 phần tử:
    }
    ```
 
-2. **Item 2**: Chứa danh sách danh mục
+2. **product_categories**: Chứa danh sách danh mục
    ```json
    {
      "product_categories": [
@@ -60,12 +60,12 @@ API trả về một array chứa 2 phần tử:
 #### Lấy Sản Phẩm
 
 - **Trước**: `data[0]?.products?.data`
-- **Sau**: `data[0]?.products`
+- **Sau**: `data.products`
 
 #### Lấy Danh Mục
 
 - **Trước**: `data[0]?.caterogies?.json?.data`
-- **Sau**: `data[1]?.product_categories`
+- **Sau**: `data.product_categories`
 
 #### Filter Danh Mục
 
@@ -135,7 +135,7 @@ Mở Developer Tools để xem log khi load dữ liệu.
 
 3. **Categories không load**
    - Kiểm tra filter `glt_is_active`
-   - Kiểm tra cấu trúc `data[1]?.product_categories`
+   - Kiểm tra cấu trúc `data.product_categories`
 
 ### Debug Commands
 

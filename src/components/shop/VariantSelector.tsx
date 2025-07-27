@@ -66,8 +66,8 @@ export function VariantSelector({
         return;
       }
 
-      // Parse structure: data[0].products từ API response
-      const allProducts = apiData[0]?.products || [];
+      // Parse structure: data.products từ API response
+      const allProducts = apiData.products || [];
 
       if (!Array.isArray(allProducts) || allProducts.length === 0) {
         setVariants([]);
