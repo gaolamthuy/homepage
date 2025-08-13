@@ -1,31 +1,17 @@
 /**
  * Data service cho shop online
- * Fetch dữ liệu từ API thật
+ * Fetch dữ liệu từ API thật với error handling tốt hơn
  */
 
 import type { Product, Category, ProductAttribute } from "@/types/shop";
-
-// API URL từ environment variable
-const API_URL = import.meta.env.PUBLIC_API_URL;
+import { fetchProducts, fetchCategories } from "./api-client";
 
 /**
  * Fetch dữ liệu sản phẩm từ API
  * @returns Promise với danh sách sản phẩm từ API
  */
 async function fetchProductsFromAPI(): Promise<any[]> {
-  try {
-    const apiUrl = API_URL + (API_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
-    const response = await fetch(apiUrl, { cache: 'no-store' });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    // Lấy products trực tiếp từ object response
-    return data.products || [];
-  } catch (error) {
-    console.error("Lỗi khi fetch products từ API:", error);
-    return [];
-  }
+  return await fetchProducts();
 }
 
 /**
@@ -69,6 +55,8 @@ function mapApiDataToProduct(apiData: any, allProducts: any[]): Product {
     isLotSerialControl: apiData.isLotSerialControl,
     isBatchExpireControl: apiData.isBatchExpireControl,
     masterProductId: apiData.masterProductId,
+    // Thêm units
+    units: apiData.units || [],
     // GLT custom fields
     glt: apiData.glt,
   };
@@ -115,14 +103,7 @@ export async function getProductsByCategory(
  */
 export async function getAllCategories(): Promise<Category[]> {
   try {
-    const apiUrl2 = API_URL + (API_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
-    const response = await fetch(apiUrl2, { cache: 'no-store' });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    // Lấy categories trực tiếp từ object response và filter theo glt_is_active = true
-    const categoriesData = data.product_categories || [];
+    const categoriesData = await fetchCategories();
 
     // Filter chỉ lấy những danh mục có glt_is_active = true
     const activeCategories = categoriesData.filter(

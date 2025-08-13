@@ -10,6 +10,19 @@ export interface ProductAttribute {
   attributeValue: string;
 }
 
+// Interface cho unit của sản phẩm
+export interface ProductUnit {
+  id: number;
+  code: string;
+  name: string;
+  fullName: string;
+  unit: string;
+  conversionValue: number;
+  basePrice: number;
+  allowssale: boolean;
+  masterUnitId?: number;
+}
+
 // Interface cho sản phẩm
 export interface Product {
   id: string;
@@ -42,6 +55,8 @@ export interface Product {
   isLotSerialControl?: boolean;
   isBatchExpireControl?: boolean;
   masterProductId?: number | null;
+  // Thêm units array
+  units?: ProductUnit[];
   // GLT custom fields
   glt?: {
     glt_synced_at?: string;
@@ -62,6 +77,7 @@ export interface Product {
     glt_gallery_original_url?: string | null;
     glt_baseprice_markup?: number | null;
     glt_kiotvietshop_url?: string;
+    glt_shopee_url?: string | null;
   };
 }
 

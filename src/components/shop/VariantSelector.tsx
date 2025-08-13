@@ -138,6 +138,7 @@ export function VariantSelector({
         unit: apiProduct.unit,
         isActive: apiProduct.isActive,
         masterProductId: apiProduct.masterProductId,
+        units: apiProduct.units || [], // Thêm units
         glt: apiProduct.glt,
       }));
 
@@ -247,8 +248,24 @@ export function VariantSelector({
 
               {/* Giá */}
               <div className="text-xs text-muted-foreground mb-2">
-                {formatPrice(variant.price)}
+                {formatPrice(variant.price)} / {variant.unit}
               </div>
+
+              {/* Units Pricing - Simple format */}
+              {variant.units && variant.units.length > 0 && (
+                <div className="space-y-1 mb-2">
+                  {variant.units.slice(0, 2).map((unit) => (
+                    <div key={unit.id} className="text-xs text-muted-foreground">
+                      {formatPrice(unit.basePrice)} / {unit.unit}
+                    </div>
+                  ))}
+                  {variant.units.length > 2 && (
+                    <div className="text-xs text-muted-foreground">
+                      +{variant.units.length - 2} đơn vị khác
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Attributes (hiển thị tối đa 2 cái đầu tiên) */}
               {variant.attributes && variant.attributes.length > 0 && (

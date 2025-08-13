@@ -2,6 +2,7 @@
 // Import global styles
 import '../styles/global.css';
 import ThemeToggle from '../components/ThemeToggle';
+import FloatingZaloButton from '../components/ui/floating-zalo-button';
 
 // Props interface
 export interface Props {
@@ -27,11 +28,19 @@ const { title, description = 'Shop Online - Cửa hàng trực tuyến chất l�
     <title>{title}</title>
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={Astro.url} />
     {image && <meta property="og:image" content={image} />}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     {image && <meta name="twitter:image" content={image} />}
+    
+    <!-- Additional SEO -->
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Gạo Lâm Thúy" />
+    <meta name="keywords" content="gạo, gạo sạch, gạo chất lượng, gạo lâm thúy, gạo nở, gạo dẻo" />
+    <link rel="canonical" href={Astro.url} />
     
     <!-- Preconnect to external domains -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -145,13 +154,16 @@ const { title, description = 'Shop Online - Cửa hàng trực tuyến chất l�
             </div>
           </div>
 
-          <!-- Bottom Footer -->
-          <div class="border-t border-gray-200 dark:border-slate-700 mt-8 pt-8 text-center text-sm text-gray-600 dark:text-slate-400">
-            <p>&copy; 2024 Gạo Lâm Thúy </p>
-            <p>Made with 💗</p>
-          </div>
-        </div>
-      </footer>
+                <!-- Bottom Footer -->
+      <div class="border-t border-gray-200 dark:border-slate-700 mt-8 pt-8 text-center text-sm text-gray-600 dark:text-slate-400">
+        <p>&copy; 2024 Gạo Lâm Thúy </p>
+        <p>Made with 💗</p>
+      </div>
     </div>
+  </footer>
+
+  <!-- Floating Zalo Button -->
+  <FloatingZaloButton client:load phoneNumber="0901.467.300" showOnScroll={false} />
+</div>
   </body>
 </html>
