@@ -7,6 +7,7 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import type { LayoutProps } from '../types/product';
+import '../assets/app.css';
 
 export interface Props extends LayoutProps {
   totalProducts?: number;
@@ -36,8 +37,7 @@ const { title = "Gạo Lâm Thúy", description = "Sản phẩm gạo chất lư
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
     
-    <!-- Import CSS -->
-    <link rel="stylesheet" href="/src/assets/app.css" />
+    <!-- CSS được import trực tiếp trong frontmatter -->
   </head>
   <body>
     <Header totalProducts={totalProducts} />
@@ -49,15 +49,45 @@ const { title = "Gạo Lâm Thúy", description = "Sản phẩm gạo chất lư
     <!-- Theme-change library -->
     <script is:inline>
       // Prevent FART effect - apply theme before rendering
-      if (localStorage.getItem("theme") === null) {
-        document.documentElement.setAttribute("data-theme", "bumblebee");
-      } else {
-        document.documentElement.setAttribute("data-theme", localStorage.getItem("theme"));
+      // Default theme: bumblebee (light), forest (dark)
+      function getInitialTheme() {
+        // Kiểm tra localStorage trước
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme) {
+          return savedTheme;
+        }
+        
+        // Detect device theme preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          return "forest"; // Dark mode
+        }
+        
+        return "bumblebee"; // Light mode default
       }
+      
+      // Áp dụng theme ngay lập tức
+      document.documentElement.setAttribute("data-theme", getInitialTheme());
     </script>
     <script>
       import { themeChange } from 'theme-change';
+      
+      // Khởi tạo theme-change library
       themeChange();
+      
+      // Debug: Log current theme
+      console.log('Current theme:', document.documentElement.getAttribute('data-theme'));
+      
+      // Listen for device theme changes
+      if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+          // Chỉ áp dụng nếu user chưa có theme preference được lưu
+          if (!localStorage.getItem("theme")) {
+            const newTheme = e.matches ? "forest" : "bumblebee";
+            document.documentElement.setAttribute("data-theme", newTheme);
+            console.log('Device theme changed to:', newTheme);
+          }
+        });
+      }
     </script>
   </body>
 </html>
