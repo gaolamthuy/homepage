@@ -51,7 +51,6 @@ Tạo file `.env` với nội dung:
 
 ```env
 PUBLIC_API_URL=https://cdn.gaolamthuy.vn/homepage
-=development
 ```
 
 ### daisyUI Theme
