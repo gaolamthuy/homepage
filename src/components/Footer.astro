@@ -1,0 +1,87 @@
+---
+/**
+ * Footer hiển thị thông tin bản quyền và liên kết nhanh
+ */
+---
+
+<footer class="bg-base-300">
+  <div class="container mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <!-- Brand Section -->
+      <div class="flex-1 min-w-0">
+        <a href="/" class="normal-case text-primary no-underline inline-flex items-center gap-3 max-w-full">
+          <div class="flex items-center gap-3">
+            <img
+              src="https://raw.githubusercontent.com/gaolamthuy/logo/refs/heads/main/logo-main-hexagon-extrawhiteborder-forproductimage.svg"
+              alt="Logo Gạo Lâm Thúy"
+              class="h-18 w-auto"
+              loading="lazy"
+            />
+            <div class="flex flex-col leading-tight truncate">
+              <span class="text-2xl font-bold truncate">Gạo Lâm Thúy</span>
+              <span class="text-xs text-base-content/70 truncate">Gạo ngon - Giá tốt - Giao tận nơi</span>
+            </div>
+          </div>
+        </a>
+        <p class="text-base-content/70 mt-2">Gạo chất lượng cao, đa dạng chủng loại, giao hàng tận nơi toàn quốc.</p>
+        
+        <!-- Social Media Links -->
+        <div class="flex gap-3 mt-4">
+          <a href="https://facebook.com/gaolamthuy" target="_blank" rel="noopener" class="btn btn-ghost btn-sm" aria-label="Facebook">
+            <img 
+              src="/src/icons/icons8-facebook.svg" 
+              alt="Facebook" 
+              class="w-5 h-5"
+              loading="lazy"
+            />
+            Facebook Fanpage
+          </a>
+          <a href="https://zalo.me/567000711935281744" target="_blank" rel="noopener" class="btn btn-ghost btn-sm" aria-label="Zalo">
+            <img 
+              src="/src/icons/icons8-zalo.svg" 
+              alt="Zalo" 
+              class="w-5 h-5"
+              loading="lazy"
+            />
+            Zalo Official Account
+          </a>
+        </div>
+      </div>
+
+      <!-- Customer Support -->
+      <div>
+        <h4 class="font-bold mb-2 text-base-content">Hỗ trợ khách hàng</h4>
+        <ul class="space-y-1 text-base-content/70">
+          <li><a href="#" class="link link-hover">Trung tâm trợ giúp</a></li>
+          <li><a href="#" class="link link-hover">Chính sách vận chuyển</a></li>
+          <li><a href="#" class="link link-hover">Chính sách đổi trả</a></li>
+          <li><a href="#" class="link link-hover">Chính sách bảo hành</a></li>
+          <li><a href="#" class="link link-hover">Chính sách bảo mật</a></li>
+          <li><a href="#" class="link link-hover">Điều khoản sử dụng</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact Information -->
+      <div>
+        <h4 class="font-bold mb-2 text-base-content">Thông tin liên hệ</h4>
+        <div class="space-y-2 text-base-content/70">
+          <div class="flex items-center gap-2">
+            <a href="tel:0901467300" class="hover:underline">0901 467 300</a>
+            <a href="https://zalo.me/0901467300" target="_blank" rel="noopener" class="inline-block align-middle hover:opacity-80 transition-opacity ml-1">
+              <img src="/src/icons/icons8-zalo.svg" alt="Zalo" class="w-8 h-8" />
+            </a>
+          </div>
+          <div>
+            <a href="https://maps.app.goo.gl/oVAN7ZoPcL2BGQxt7" target="_blank" rel="n  oopener" class="flex items-center gap-2 hover:underline">23 Nguyễn Đình Chiểu, Phường 4, Quận Phú Nhuận, TP.HCM</a>
+            </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="divider"></div>
+    <div class="text-center">
+      <p class="text-base-content/70">© {new Date().getFullYear()} Gạo Lâm Thúy</p>
+      <p class="text-base-content/70">Made with 💗</p>
+    </div>
+  </div>
+</footer>

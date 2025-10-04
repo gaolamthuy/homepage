@@ -1,0 +1,123 @@
+---
+/**
+ * Component hiển thị thông tin sản phẩm
+ * Sử dụng daisyUI để tạo giao diện đẹp và responsive
+ */
+
+import type { Product, ProductCardProps } from '../types/product';
+
+// Props cho component
+export interface Props extends ProductCardProps {
+  showPromotionBadge?: boolean;
+  showOrderTemplate?: boolean;
+  density?: 'default' | 'compact';
+}
+
+const { product, showPromotionBadge = true, showOrderTemplate = true, density = 'default' } = Astro.props;
+
+/**
+ * Hàm format giá tiền theo định dạng VND
+ * @param price - Giá tiền cần format
+ * @returns Chuỗi giá tiền đã format
+ */
+function formatPrice(price: number): string {
+  return new Intl.NumberFormat('vi-VN', 
+  // {
+  //   style: 'currency',
+  //   currency: 'VND'
+  // }
+).format(price);
+}
+
+/**
+ * Hàm lấy URL hình ảnh chính của sản phẩm
+ * Ưu tiên glt_gallery_thumbnail_url, sau đó đến images[0]
+ * @param product - Đối tượng sản phẩm
+ * @returns URL hình ảnh hoặc placeholder
+ */
+function getProductImage(product: Product): string {
+  if (product.glt_gallery_thumbnail_url) {
+    return product.glt_gallery_thumbnail_url;
+  }
+  if (product.images && product.images.length > 0) {
+    return product.images[0];
+  }
+  return 'https://via.placeholder.com/300x200?text=No+Image';
+}
+
+/**
+ * Hàm kiểm tra sản phẩm có đang khuyến mãi không
+ * @param product - Đối tượng sản phẩm
+ * @returns true nếu có khuyến mãi
+ */
+function hasPromotion(product: Product): boolean {
+  return product.glt_retail_promotion || false;
+}
+---
+
+<div class="card w-full bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 group border border-base-300" data-product-category={product.category_name}>
+  <!-- Hình ảnh sản phẩm -->
+  <figure class={`relative overflow-hidden ${density === 'compact' ? 'h-40' : ''}`}>
+    <img 
+      src={getProductImage(product)} 
+      alt={product.name}
+      class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+      loading="lazy"
+    />
+    
+    <!-- Badge có nhiều loại variant và khuyến mãi - cùng 1 line bên trái -->
+    <div class="absolute top-2 left-2 flex gap-1">
+      {showPromotionBadge && hasPromotion(product) && (
+        <div class="badge badge-primary badge-soft badge-sm">Khuyến mãi</div>
+      )}
+      {product.child_product && (
+        <div class="badge badge-primary badge-soft badge-sm">Nhiều loại</div>
+      )}
+    </div>
+    
+  </figure>
+
+  <!-- Nội dung thẻ -->
+  <div class="card-body p-4 bg-base-100/95 backdrop-blur-sm">
+    <!-- Tên sản phẩm -->
+    <h2 class="card-title text-lg font-bold text-base-content line-clamp-2 flex items-center gap-2">
+      <span>{product.full_name}</span>
+    </h2>
+<p>
+    <!-- Template đặt hàng -->
+    {showOrderTemplate && product.order_template && (
+      <div class="text-xs text-base-content/50 italic mt-1">
+        {product.order_template}
+      </div>
+    )}
+</p>
+    <!-- Danh mục -->
+    <!-- <div class="badge badge-outline badge-sm">
+      {product.category_name}
+    </div> -->
+    
+    <!-- Giá sản phẩm -->
+    <div class="flex items-center justify-between mt-2">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl font-bold text-primary bg-primary/10 px-2 py-1 rounded-lg">
+          {formatPrice(product.base_price)}
+        </span>
+      </div>
+    </div>
+    
+    <!-- Actions -->
+    <div class="card-actions justify-end mt-4">
+      <!-- Link nội bộ đến trang chi tiết -->
+      {product.glt_slug && (
+        <a 
+          href={`/products/${product.glt_slug}`}
+          class="btn btn-primary btn-md shadow-lg hover:shadow-xl transition-all duration-300"
+          aria-label={`Xem chi tiết ${product.full_name}`}
+        >
+          Xem chi tiết
+        </a>
+      )}
+
+    </div>
+  </div>
+</div>

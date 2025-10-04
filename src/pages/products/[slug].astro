@@ -1,0 +1,98 @@
+---
+/**
+ * Trang chi tiết sản phẩm theo glt_slug
+ * Tạo static paths từ danh sách sản phẩm lấy từ PUBLIC_API_URL
+ */
+
+import Layout from '../../layouts/Layout.astro';
+import ProductDetailIsland from '../../components/ProductDetailIsland.tsx';
+import { getProducts } from '../../lib/api';
+import type { Product, ProductResponse } from '../../types/product';
+
+interface Props {
+  product: Product;
+}
+
+export async function getStaticPaths() {
+  const data = (await getProducts()) as ProductResponse;
+  const products = data.products_data || [];
+
+  // Lọc những sản phẩm có glt_slug hợp lệ
+  const itemsWithSlug = products.filter((p) => Boolean((p as any).glt_slug));
+
+  return itemsWithSlug.map((p) => ({
+    params: { slug: (p as any).glt_slug as string },
+    props: { product: p },
+  }));
+}
+
+const { product } = Astro.props as Props;
+
+function getProductImage(product: Product): string {
+  if (product.glt_gallery_thumbnail_url) return product.glt_gallery_thumbnail_url;
+  if (product.images && product.images.length > 0) return product.images[0];
+  return 'https://via.placeholder.com/800x600?text=No+Image';
+}
+---
+
+<Layout title={`${product.full_name} - Gạo Lâm Thúy`} description={`Chi tiết sản phẩm ${product.full_name}`}>
+  <main class="container mx-auto px-4 py-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Hình ảnh lớn -->
+      <div>
+        <img src={getProductImage(product)} alt={product.name} class="w-full rounded-xl shadow-md" loading="eager" />
+      </div>
+
+      <!-- Thông tin sản phẩm -->
+      <div class="space-y-4">
+        <div class="space-y-2">
+        <h1 class="text-2xl font-extrabold text-base-content">{product.name}</h1>
+            
+          <div class="flex items-center gap-2 flex-wrap">
+            <div class="badge badge-outline">{product.category_name}</div>
+            {product.glt_retail_promotion && (
+              <div class="tooltip" data-tip="Giảm 10,000VNĐ/10kg cho đơn hàng dưới 50kg">
+                <div class="badge badge-outline flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" class="w-4 h-4">
+                    <path d="M 16 3 C 8.832031 3 3 8.832031 3 16 C 3 23.167969 8.832031 29 16 29 C 23.167969 29 29 23.167969 29 16 C 29 8.832031 23.167969 3 16 3 Z M 16 5 C 22.085938 5 27 9.914063 27 16 C 27 22.085938 22.085938 27 16 27 C 9.914063 27 5 22.085938 5 16 C 5 9.914063 9.914063 5 16 5 Z M 15 10 L 15 12 L 17 12 L 17 10 Z M 15 14 L 15 22 L 17 22 L 17 14 Z"></path>
+                  </svg>
+                  Khuyến mãi
+                </div>
+              </div>
+            )}
+            {product.child_product && (
+                <div class="badge badge-outline flex items-center gap-1">
+                  Nhiều loại
+              </div>
+            )}
+          </div>
+          
+        </div>
+
+        <ProductDetailIsland client:visible product={product} />
+
+        <div class="flex gap-3 pt-2">
+          {product.glt_kiotvietshop_url && (
+            <a href={product.glt_kiotvietshop_url} target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+              Đặt hàng online
+            </a>
+          )}
+          {product.glt_shopee_url && (
+            <a href={product.glt_shopee_url} target="_blank" rel="noopener noreferrer" class="btn">
+              Xem trên Shopee
+            </a>
+          )}
+        </div>
+
+        <!-- <div class="text-xs text-base-content/50 pt-4">
+          Mã hàng: {product.code} • ID: {product.id}
+        </div> -->
+      </div>
+    </div>
+
+    <!-- Gợi ý sản phẩm liên quan (đơn giản: cùng danh mục) -->
+    <!-- Có thể mở rộng trong tương lai: fetch thêm và loại trừ chính mình -->
+  </main>
+</Layout>
+
+

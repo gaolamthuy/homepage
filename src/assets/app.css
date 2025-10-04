@@ -1,0 +1,9 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: bumblebee --default, forest --prefersdark;
+}
+
+/* Apply Nunito font to body */
+body {
+  font-family: "Nunito", sans-serif;
+}

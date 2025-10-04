@@ -1,0 +1,55 @@
+
+---
+import Layout from '../../layouts/Layout.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import ProductsFilterIsland from '../../components/ProductsFilterIsland.tsx';
+import { getProducts, getCategories } from '../../lib/api';
+import type { ProductResponse } from '../../types/product';
+
+const data = (await getProducts()) as ProductResponse;
+const products = data.products_data || [];
+const categoriesRes = await getCategories();
+const categories = (categoriesRes.categories_data || []).sort((a, b) => (a.rank ?? 9999) - (b.rank ?? 9999));
+
+// Fallback mapping in case API counts are missing
+const byCategoryCount = products.reduce((acc, p) => {
+  const key = p.category_name;
+  acc[key] = (acc[key] || 0) + 1;
+  return acc;
+}, {} as Record<string, number>);
+
+const categoriesWithCounts = categories.map((c) => ({
+  ...c,
+  homepage_item_count: c.homepage_item_count ?? byCategoryCount[c.category_name] ?? 0,
+}));
+
+// Sử dụng categoriesWithCounts trực tiếp, không cần "Tất cả" vì đã có reset button
+
+---
+
+<Layout title="Tất cả sản phẩm - Gạo Lâm Thúy" description="Danh sách tất cả sản phẩm, lọc theo nhu cầu.">
+  <main class="container mx-auto px-4 py-8 max-w-7xl">
+    <h1 class="text-3xl font-bold mb-6">Tất cả sản phẩm</h1>
+
+    <!-- Category Filter bằng React island (daisyUI checkboxes + reset) -->
+    <ProductsFilterIsland client:idle categories={categoriesWithCounts} />
+
+    <!-- Products grid với filtering -->
+    <div id="products-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {products.map((product) => (
+        <div 
+          class="product-item" 
+          data-product-category={product.category_name}
+          data-category-filter={product.category_name}
+        >
+          <ProductCard product={product} density="compact" />
+        </div>
+      ))}
+    </div>
+
+
+    
+  </main>
+</Layout>
+
+

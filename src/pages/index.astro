@@ -1,16 +1,150 @@
 ---
+/**
+ * Trang chủ hiển thị danh sách sản phẩm
+ * Sử dụng API để lấy dữ liệu sản phẩm và hiển thị bằng ProductCard component
+ */
 
+import ProductCard from '../components/ProductCard.astro';
+import Layout from '../layouts/Layout.astro';
+import { getProducts, getCategories } from '../lib/api';
+import type { ProductResponse } from '../types/product';
+
+// Lấy dữ liệu sản phẩm và danh mục
+const productData = await getProducts();
+const products = productData.products_data || [];
+const categoriesRes = await getCategories();
+
+/**
+ * Tạo map category name -> rank để sắp xếp
+ */
+const categoryNameToRank: Record<string, number> = (categoriesRes.categories_data || []).reduce((acc, c) => {
+  if (c.category_name) acc[c.category_name] = (c as any).rank ?? 9999;
+  return acc;
+}, {} as Record<string, number>);
+
+/**
+ * Hàm nhóm sản phẩm theo danh mục
+ * @param products - Mảng sản phẩm
+ * @returns Object với key là category_name và value là mảng sản phẩm
+ */
+function groupProductsByCategory(products: ProductResponse['products_data']) {
+  return products.reduce((groups, product) => {
+    const category = product.category_name;
+    if (!groups[category]) {
+      groups[category] = [];
+    }
+    groups[category].push(product);
+    return groups;
+  }, {} as Record<string, ProductResponse['products_data']>);
+}
+
+const groupedProducts = groupProductsByCategory(products);
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout 
+  title="Gạo Lâm Thúy - Sản phẩm chất lượng cao"
+  description="Khám phá các sản phẩm gạo chất lượng cao từ Gạo Lâm Thúy. Gạo dẻo, gạo nở, nếp và nhiều loại khác."
+  totalProducts={products.length}
+>
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+      <!-- Hero Section -->
+      <div class="hero bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl mb-8">
+        <div class="hero-content flex-col lg:flex-row items-center gap-6 md:gap-10">
+          <div class="max-w-md mx-auto text-center lg:text-left">
+            <h2 class="text-4xl font-bold text-base-content mb-4">
+              Gạo Lâm Thúy
+            </h2>
+            <p class="text-lg text-base-content/70 mb-6">
+              Khám phá các sản phẩm gạo đa dạng với chất lượng tốt nhất
+            </p>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3 w-full">
+              <button class="btn btn-primary btn-lg w-full sm:w-auto">XEM ALBUM BẢNG GIÁ</button>
+              <a href="/about" class="link md:hidden">Liên hệ</a>
+              <a href="/about"><button class="hidden md:inline-flex btn btn-ghost btn-lg">Liên hệ</button></a>
+            </div>
+          </div>
+          <div class="w-full lg:w-1/2 mt-2 md:mt-0">
+            <img
+              src="/hero-image.svg"
+              alt="Minh họa sản phẩm gạo chất lượng cao"
+              class="w-3/4 md:w-full mx-auto h-auto"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Products Grid -->
+      {Object.keys(groupedProducts).length > 0 ? (
+        Object.entries(groupedProducts)
+          .sort(([a], [b]) => (categoryNameToRank[a] ?? 9999) - (categoryNameToRank[b] ?? 9999))
+          .map(([category, categoryProducts]) => {
+          const products = categoryProducts as ProductResponse['products_data'];
+          return (
+            <section class="mb-12">
+              <!-- Category Header -->
+              <div class="flex items-center gap-4 mb-6">
+                <a 
+                  href="/products" 
+                  class="flex items-center gap-3 hover:opacity-80 transition-opacity duration-200 group"
+                >
+                  <h3 class="text-2xl font-bold text-base-content group-hover:text-primary transition-colors duration-200">
+                    {category}
+                  </h3>
+                  <span class="badge">
+                    {products.length}
+                  </span>
+                  <svg 
+                    class="w-5 h-5 text-base-content/60 transition-colors duration-200" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </a>
+              </div>
+              
+              <!-- Products Grid -->
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {products.map((product, index) => (
+                  <div class={index >= 4 ? 'hidden sm:block' : ''}>
+                    <ProductCard product={product} />
+                  </div>
+                ))}
+              </div>
+
+              {/* Mobile-only: show more link to /products */}
+              {products.length > 4 && (
+                <div class="mt-4 text-center text-md sm:hidden">
+                  <a href="/products" class="badge badge-ghost">Xem thêm
+                    <svg 
+                    class="w-5 h-5 text-base-content/60 group-hover:text-primary transition-colors duration-200" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                  </a>
+                </div>
+              )}
+            </section>
+          );
+        })
+      ) : (
+        <!-- Empty State -->
+        <div class="text-center py-12">
+          <div class="text-6xl mb-4">🌾</div>
+          <h3 class="text-2xl font-bold text-base-content mb-2">
+            Không có sản phẩm nào
+          </h3>
+          <p class="text-base-content/70">
+            Vui lòng thử lại sau hoặc kiểm tra kết nối mạng
+          </p>
+      		</div>
+      )}
+    </main>
+  </div>
+</Layout>

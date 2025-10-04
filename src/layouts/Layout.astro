@@ -1,0 +1,63 @@
+---
+/**
+ * Layout chính cho toàn bộ ứng dụng
+ * Import CSS và cấu hình meta tags
+ */
+
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import type { LayoutProps } from '../types/product';
+
+export interface Props extends LayoutProps {
+  totalProducts?: number;
+}
+
+const { title = "Gạo Lâm Thúy", description = "Sản phẩm gạo chất lượng cao", totalProducts = 0 } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="vi" data-theme="bumblebee">
+  <head>
+    <meta charset="utf-8" />
+    <!-- Favicon set -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon_io/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon_io/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon_io/favicon-16x16.png" />
+    <link rel="icon" type="image/x-icon" href="/favicon_io/favicon.ico" />
+    <link rel="manifest" href="/favicon_io/site.webmanifest" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    
+    <!-- Import Nunito font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+    
+    <!-- Import CSS -->
+    <link rel="stylesheet" href="/src/assets/app.css" />
+  </head>
+  <body>
+    <Header totalProducts={totalProducts} />
+    <div class="mx-auto max-w-7xl">
+      <slot />
+    </div>
+    <Footer />
+    
+    <!-- Theme-change library -->
+    <script is:inline>
+      // Prevent FART effect - apply theme before rendering
+      if (localStorage.getItem("theme") === null) {
+        document.documentElement.setAttribute("data-theme", "bumblebee");
+      } else {
+        document.documentElement.setAttribute("data-theme", localStorage.getItem("theme"));
+      }
+    </script>
+    <script>
+      import { themeChange } from 'theme-change';
+      themeChange();
+    </script>
+  </body>
+</html>
