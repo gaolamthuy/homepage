@@ -50,8 +50,7 @@ Component `ProductCard` hiển thị thông tin sản phẩm với các tính n�
 Tạo file `.env` với nội dung:
 
 ```env
-PUBLIC_API_URL=https://cdn.gaolamthuy.vn/homepage
-=development
+PUBLIC_API_URL=PUBLIC_API_URL
 ```
 
 ### daisyUI Theme
@@ -88,7 +87,7 @@ npm run preview
 
 ## 🎯 API Integration
 
-Dự án tích hợp với API `https://cdn.gaolamthuy.vn/homepage/products_data.json` để lấy dữ liệu sản phẩm.
+Dự án tích hợp với API `PUBLIC_API_URL/products_data.json` để lấy dữ liệu sản phẩm.
 
 ### Cấu trúc dữ liệu sản phẩm:
 
