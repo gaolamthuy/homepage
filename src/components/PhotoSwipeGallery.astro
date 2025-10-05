@@ -1,0 +1,131 @@
+---
+/**
+ * PhotoSwipe Gallery Component
+ * Hiển thị gallery bảng giá với PhotoSwipe
+ */
+
+import type { AlbumItem, AlbumData } from '../types/product';
+
+// Re-export types để sử dụng trong script
+export type { AlbumItem, AlbumData };
+
+// Fetch album data từ API sử dụng environment variable
+let albumData: AlbumItem[] = [];
+try {
+  const apiUrl = import.meta.env.PUBLIC_API_URL;
+  const response = await fetch(`${apiUrl}/album_website.json`);
+  const data: AlbumData = await response.json();
+  albumData = data.album_website;
+} catch (error) {
+  console.error('Error fetching album data:', error);
+}
+---
+
+<!-- PhotoSwipe Gallery Container -->
+<div id="photoswipe-gallery" class="hidden">
+  <!-- Gallery items sẽ được render bởi JavaScript -->
+</div>
+
+<!-- PhotoSwipe CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@5.4.4/dist/photoswipe.css">
+
+<!-- PhotoSwipe JavaScript -->
+<script>
+  import PhotoSwipe from 'photoswipe';
+  import PhotoSwipeLightbox from 'photoswipe/lightbox';
+  import 'photoswipe/style.css';
+
+  // Album data sẽ được fetch từ API
+  let albumData: any[] = [];
+
+  // Khởi tạo PhotoSwipe Lightbox
+  const lightbox = new PhotoSwipeLightbox({
+    gallery: '#photoswipe-gallery',
+    children: 'a',
+    showHideOpacity: true,
+    bgOpacity: 0.8,
+    pswpModule: PhotoSwipe
+  });
+
+  // Cấu hình PhotoSwipe
+  lightbox.on('uiRegister', function() {
+    if (lightbox.pswp && lightbox.pswp.ui) {
+      lightbox.pswp.ui.registerElement({
+        name: 'custom-caption',
+        onInit: (el, pswp) => {
+          el.innerHTML = '<div class="pswp__caption"><div class="pswp__caption__center"></div></div>';
+        }
+      });
+    }
+  });
+
+  // Xử lý sự kiện mở gallery
+  document.addEventListener('DOMContentLoaded', function() {
+    const galleryButton = document.querySelector('[data-gallery-trigger]');
+    if (galleryButton) {
+      galleryButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        openGallery();
+      });
+    }
+  });
+
+  /**
+   * Fetch album data từ API
+   */
+  async function fetchAlbumData(): Promise<any[]> {
+    try {
+      const apiUrl = import.meta.env.PUBLIC_API_URL;
+      const response = await fetch(`${apiUrl}/album_website.json`);
+      const data: any = await response.json();
+      return data.album_website;
+    } catch (error) {
+      console.error('Error fetching album data:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Mở PhotoSwipe gallery với dữ liệu album
+   */
+  async function openGallery() {
+    // Fetch album data nếu chưa có
+    if (albumData.length === 0) {
+      albumData = await fetchAlbumData();
+    }
+
+    if (albumData.length === 0) {
+      console.error('No album data available');
+      return;
+    }
+
+    // Tạo gallery items
+    const galleryItems = albumData.map(item => ({
+      src: item.url,
+      width: 1200,
+      height: 1600,
+      alt: item.title,
+      title: item.title
+    }));
+
+    // Tạo HTML cho gallery
+    const galleryHTML = galleryItems.map((item, index) => 
+      `<a href="${item.src}" data-pswp-width="${item.width}" data-pswp-height="${item.height}" data-pswp-srcset="${item.src} 1200w" target="_blank">
+        <img src="${item.src}" alt="${item.alt}" style="display: none;" />
+      </a>`
+    ).join('');
+
+    // Render gallery
+    const galleryContainer = document.getElementById('photoswipe-gallery');
+    if (galleryContainer) {
+      galleryContainer.innerHTML = galleryHTML;
+      galleryContainer.classList.remove('hidden');
+      
+      // Mở gallery từ item đầu tiên
+      lightbox.loadAndOpen(0, galleryItems);
+    }
+  }
+
+  // Export function để sử dụng từ bên ngoài
+  (window as any).openPriceGallery = openGallery;
+</script>

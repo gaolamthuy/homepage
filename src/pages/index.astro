@@ -6,6 +6,7 @@
 
 import ProductCard from '../components/ProductCard.astro';
 import Layout from '../layouts/Layout.astro';
+import PhotoSwipeGallery from '../components/PhotoSwipeGallery.astro';
 import { getProducts, getCategories } from '../lib/api';
 import type { ProductResponse } from '../types/product';
 
@@ -59,7 +60,7 @@ const groupedProducts = groupProductsByCategory(products);
               Khám phá các sản phẩm gạo đa dạng với chất lượng tốt nhất
             </p>
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3 w-full">
-              <button class="btn btn-primary btn-lg w-full sm:w-auto">XEM ALBUM BẢNG GIÁ</button>
+              <button class="btn btn-primary btn-lg w-full sm:w-auto" data-gallery-trigger>XEM ALBUM BẢNG GIÁ</button>
               <a href="/about" class="link md:hidden">Liên hệ</a>
               <a href="/about"><button class="hidden md:inline-flex btn btn-ghost btn-lg">Liên hệ</button></a>
             </div>
@@ -147,4 +148,7 @@ const groupedProducts = groupProductsByCategory(products);
       )}
     </main>
   </div>
+  
+  <!-- PhotoSwipe Gallery Component -->
+  <PhotoSwipeGallery />
 </Layout>

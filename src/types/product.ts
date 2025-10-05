@@ -77,3 +77,23 @@ export interface LayoutProps {
   title?: string;
   description?: string;
 }
+
+/**
+ * Interface định nghĩa cấu trúc dữ liệu album item từ API
+ */
+export interface AlbumItem {
+  id: number;
+  created_at: string;
+  title: string;
+  url: string;
+  type: string;
+  updated_at: string;
+  s3_searchkey: string;
+}
+
+/**
+ * Interface cho response từ API album_website.json
+ */
+export interface AlbumData {
+  album_website: AlbumItem[];
+}
