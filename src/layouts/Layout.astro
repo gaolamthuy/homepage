@@ -6,6 +6,7 @@
 
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import PhotoSwipeGallery from '../components/PhotoSwipeGallery.astro';
 import type { LayoutProps } from '../types/product';
 import '../assets/app.css';
 
@@ -45,6 +46,38 @@ const { title = "Gạo Lâm Thúy", description = "Sản phẩm gạo chất lư
       <slot />
     </div>
     <Footer />
+    
+    <!-- Floating Action Button (FAB) - Global -->
+    <div class="fab">
+      <!-- Main FAB button -->
+      <div tabindex="0" role="button" class="btn btn-lg btn-circle btn-ghost">
+        <a href="https://zalo.me/0901467300" target="_blank" rel="noopener noreferrer" class="btn btn-lg btn-circle">
+          <img src="/icons/icons8-zalo.svg" alt="Zalo" class="w-8 h-8" />
+        </a>
+      </div>
+
+      <!-- Main Action button replaces the original button when FAB is open -->
+      <div class="fab-main-action">
+        <!-- <span class="tooltip tooltip-left">Zalo</span> -->
+        <button class="btn btn-lg btn-circle btn-ghost">
+          <a href="https://zalo.me/0901467300" target="_blank" rel="noopener noreferrer" class="btn btn-lg btn-circle">
+            <img src="/icons/icons8-zalo.svg" alt="Zalo" class="w-8 h-8" />
+          </a>
+        </button>
+      </div>
+
+      <!-- Speed dial buttons -->
+
+      <div class="tooltip tooltip-left" data-tip="Gọi điện">
+        <a href="tel:0901467300" class="btn btn-lg btn-circle btn-ghost">
+          <img src="/icons/icons8-call.svg" alt="Call" class="w-8 h-8" />
+        </a>
+      </div>
+
+    </div>
+    
+    <!-- PhotoSwipe Gallery Component - Global -->
+    <PhotoSwipeGallery />
     
     <!-- Theme-change library -->
     <script is:inline>

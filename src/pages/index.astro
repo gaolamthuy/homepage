@@ -6,7 +6,6 @@
 
 import ProductCard from '../components/ProductCard.astro';
 import Layout from '../layouts/Layout.astro';
-import PhotoSwipeGallery from '../components/PhotoSwipeGallery.astro';
 import { getProducts, getCategories } from '../lib/api';
 import type { ProductResponse } from '../types/product';
 
@@ -150,7 +149,4 @@ const groupedProducts = groupProductsByCategory(products);
       )}
     </main>
   </div>
-  
-  <!-- PhotoSwipe Gallery Component -->
-  <PhotoSwipeGallery />
 </Layout>
