@@ -43,6 +43,26 @@ function getProductImage(product: Product): string {
 ---
 
 <Layout title={`${product.full_name} - Gạo Lâm Thúy`} description={`Chi tiết sản phẩm ${product.full_name}`}>
+  <nav slot="breadcrumb" class="breadcrumbs text-sm px-4 pt-4" aria-label="Breadcrumb">
+    <ul>
+      <li><a href="/">Trang chủ</a></li>
+      <li><a href="/products">Sản phẩm</a></li>
+      {product.category_name && (
+        <li><a href={`/products?category=${encodeURIComponent(product.category_name)}`}>{product.category_name}</a></li>
+      )}
+      <li aria-current="page">{product.name}</li>
+    </ul>
+  </nav>
+  <div slot="breadcrumb" class="px-4 pt-2">
+    <a
+      href="/products"
+      class="btn btn-ghost btn-sm"
+      onclick="if (document.referrer) { history.back(); return false; }"
+      aria-label="Quay lại trang trước"
+    >
+      ← Quay lại
+    </a>
+  </div>
   <main class="container mx-auto px-4 py-6">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Hình ảnh lớn - sẽ được ProductDetailIsland quản lý -->

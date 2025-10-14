@@ -43,6 +43,7 @@ const { title = "Gạo Lâm Thúy", description = "Gạo, Tấm, Nếp cho mọi
   <body>
     <Header totalProducts={totalProducts} />
     <div class="mx-auto max-w-7xl">
+      <slot name="breadcrumb" />
       <slot />
     </div>
     <Footer />
