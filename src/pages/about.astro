@@ -13,15 +13,31 @@ import Layout from '../layouts/Layout.astro';
           <div class="card-body">
             <div class="flex items-center justify-between mb-3">
               <h2 class="card-title text-2xl">Thông tin liên hệ</h2>
-              <button class="btn btn-sm" data-copy="">Copy</button>
+              <!-- PLACEHOLDER_CONTACT_INFO: Thay thế bằng thông tin liên hệ để copy (VD: "0901 467 300 - 23 Nguyễn Đình Chiểu, Phường 4, Quận Phú Nhuận, TP.HCM") -->
+              <button class="btn btn-sm" data-copy="0901467300 - Lâm\n23 Nguyễn Đình Chiểu, Phường 4, Quận Phú Nhuận, TP.HCM">Copy</button>
             </div>
             <div class="space-y-2 text-base-content/80">
               <p><strong>Điện thoại:</strong> 0901 467 300 (Zalo)</p>
               <p><strong>Địa chỉ:</strong> 23 Nguyễn Đình Chiểu, Phường 4, Quận Phú Nhuận, TP.HCM</p>
               <p>
-                <a href="https://facebook.com" class="link link-primary" target="_blank" rel="noopener noreferrer">Facebook</a>
-                <span class="mx-2">·</span>
-                <a href="https://zalo.me" class="link link-primary" target="_blank" rel="noopener noreferrer">Zalo</a>
+                <a href="https://facebook.com/gaolamthuy" target="_blank" rel="noopener" class="btn btn-ghost btn-sm" aria-label="Facebook">
+                  <img 
+                    src="/icons/icons8-facebook.svg" 
+                    alt="Facebook" 
+                    class="w-5 h-5"
+                    loading="lazy"
+                  />
+                  Facebook Fanpage
+                </a>
+                <a href="https://zalo.me/567000711935281744" target="_blank" rel="noopener" class="btn btn-ghost btn-sm" aria-label="Zalo">
+                  <img 
+                    src="/icons/icons8-zalo.svg" 
+                    alt="Zalo" 
+                    class="w-5 h-5"
+                    loading="lazy"
+                  />
+                  Zalo Official Account
+                </a>
               </p>
             </div>
           </div>
@@ -33,30 +49,43 @@ import Layout from '../layouts/Layout.astro';
           <div class="card-body">
             <div class="flex items-center justify-between mb-3">
               <h2 class="card-title text-2xl">Thông tin doanh nghiệp</h2>
-              <button class="btn btn-sm" data-copy="">Copy</button>
+              <!-- PLACEHOLDER_BUSINESS_INFO: Thay thế bằng thông tin doanh nghiệp để copy (VD: "Công ty TNHH Gạo Lâm Thuý - MST: 0316991815 - 23 Nguyễn Đình Chiểu, Phường 4, Quận Phú Nhuận, TP.HCM - contact@gaolamthuy.vn") -->
+              <button class="btn btn-sm" data-copy="Công ty TNHH Gạo Lâm Thúy\n0316991815\n23 Nguyễn Đình Chiểu, Phường 4, Quận Phú Nhuận, TP.HCM\nlienhe@gaolamthuy.vn">Copy</button>
             </div>
             <div class="space-y-2 text-base-content/80">
               <p><strong>Công ty:</strong> Công ty TNHH Gạo Lâm Thuý</p>
               <p><strong>Mã số thuế:</strong> 0316991815</p>
               <p><strong>Địa chỉ:</strong> 23 Nguyễn Đình Chiểu, Phường 4, Quận Phú Nhuận, TP.HCM</p>
-              <p><strong>Email:</strong> contact@gaolamthuy.vn</p>
+              <p><strong>Email:</strong> lienhe@gaolamthuy.vn</p>
             </div>
           </div>
         </div>
       </section>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <section class="md:col-span-2">
+      <section>
         <div class="card bg-base-100 shadow h-[210px]">
           <div class="card-body">
             <div class="flex items-center justify-between mb-3">
               <h2 class="card-title text-2xl">Thông tin thanh toán</h2>
-              <button class="btn btn-sm" data-copy="">Copy</button>
+              <!-- PLACEHOLDER_PAYMENT_INFO: Thay thế bằng thông tin thanh toán để copy (VD: "Vietcombank - 1012 842 851 - Ho Pham Lam") -->
+              <button class="btn btn-sm" data-copy="Vietcombank\n1012842851\nHo Pham Lam">Copy</button>
             </div>
-            <div class="space-y-2 text-base-content/80">
-              <p><strong>Ngân hàng:</strong> Vietcombank</p>
-              <p><strong>Số tài khoản:</strong> 1012 842 851</p>
-              <p><strong>Chủ tài khoản:</strong> Ho Pham Lam</p>
+            <div class="flex gap-4">
+              <!-- Thông tin ngân hàng -->
+              <div class="flex-1 space-y-1 text-base-content/80">
+                <p><strong>Ngân hàng:</strong> Vietcombank</p>
+                <p><strong>Số tài khoản:</strong> 1012 842 851</p>
+                <p><strong>Chủ tài khoản:</strong> Ho Pham Lam</p>
+              </div>
+              <!-- Ảnh VietQR -->
+              <div class="flex flex-col items-center justify-center">
+                <img 
+                  src="/vietqr-1012842851.webp" 
+                  alt="VietQR - Quét để chuyển khoản" 
+                  class="w-20 h-20 object-contain rounded-lg shadow-sm"
+                  loading="lazy"
+                />
+              </div>
             </div>
           </div>
         </div>

@@ -31,18 +31,29 @@ function formatPrice(price: number): string {
 
 /**
  * Hàm lấy URL hình ảnh chính của sản phẩm
- * Ưu tiên glt_gallery_thumbnail_url, sau đó đến images[0]
+ * Ưu tiên main-thumbnail từ glt_images, sau đó main image
  * @param product - Đối tượng sản phẩm
  * @returns URL hình ảnh hoặc placeholder
  */
 function getProductImage(product: Product): string {
-  if (product.glt_gallery_thumbnail_url) {
-    return product.glt_gallery_thumbnail_url;
+  // Tìm ảnh thumbnail từ glt_images
+  if (product.glt_images && product.glt_images.length > 0) {
+    const thumbnailImage = product.glt_images.find(img => img.role === 'main-thumbnail');
+    if (thumbnailImage) {
+      return thumbnailImage.url;
+    }
+    
+    // Nếu không có thumbnail, lấy ảnh main
+    const mainImage = product.glt_images.find(img => img.role === 'main');
+    if (mainImage) {
+      return mainImage.url;
+    }
+    
+    // Fallback: lấy ảnh đầu tiên
+    return product.glt_images[0].url;
   }
-  if (product.images && product.images.length > 0) {
-    return product.images[0];
-  }
-  return 'https://via.placeholder.com/300x200?text=No+Image';
+  
+  return 'https://via.placeholder.com/300x400?text=No+Image';
 }
 
 /**
@@ -57,11 +68,11 @@ function hasPromotion(product: Product): boolean {
 
 <div class="card w-full bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 group border border-base-300" data-product-category={product.category_name}>
   <!-- Hình ảnh sản phẩm -->
-  <figure class={`relative overflow-hidden ${density === 'compact' ? 'h-40' : ''}`}>
+  <figure class={`relative overflow-hidden ${density === 'compact' ? 'h-40' : 'h-80'}`}>
     <img 
       src={getProductImage(product)} 
       alt={product.name}
-      class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
       loading="lazy"
     />
     
@@ -70,7 +81,7 @@ function hasPromotion(product: Product): boolean {
       {showPromotionBadge && hasPromotion(product) && (
         <div class="badge badge-primary badge-soft badge-sm">Khuyến mãi</div>
       )}
-      {product.child_product && (
+      {product.child_product && product.child_product.length > 0 && (
         <div class="badge badge-primary badge-soft badge-sm">Nhiều loại</div>
       )}
     </div>

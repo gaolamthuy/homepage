@@ -18,10 +18,10 @@ export async function getStaticPaths() {
   const products = data.products_data || [];
 
   // Lọc những sản phẩm có glt_slug hợp lệ
-  const itemsWithSlug = products.filter((p) => Boolean((p as any).glt_slug));
+  const itemsWithSlug = products.filter((p) => Boolean(p.glt_slug));
 
   return itemsWithSlug.map((p) => ({
-    params: { slug: (p as any).glt_slug as string },
+    params: { slug: p.glt_slug as string },
     props: { product: p },
   }));
 }
@@ -29,8 +29,15 @@ export async function getStaticPaths() {
 const { product } = Astro.props as Props;
 
 function getProductImage(product: Product): string {
-  if (product.glt_gallery_thumbnail_url) return product.glt_gallery_thumbnail_url;
-  if (product.images && product.images.length > 0) return product.images[0];
+  // Ưu tiên main image từ glt_images
+  if (product.glt_images && product.glt_images.length > 0) {
+    const mainImage = product.glt_images.find(img => img.role === 'main');
+    if (mainImage) {
+      return mainImage.url;
+    }
+    // Fallback: lấy ảnh đầu tiên
+    return product.glt_images[0].url;
+  }
   return 'https://via.placeholder.com/800x600?text=No+Image';
 }
 ---
@@ -38,9 +45,9 @@ function getProductImage(product: Product): string {
 <Layout title={`${product.full_name} - Gạo Lâm Thúy`} description={`Chi tiết sản phẩm ${product.full_name}`}>
   <main class="container mx-auto px-4 py-6">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Hình ảnh lớn -->
-      <div>
-        <img src={getProductImage(product)} alt={product.name} class="w-full rounded-xl shadow-md" loading="eager" />
+      <!-- Hình ảnh lớn - sẽ được ProductDetailIsland quản lý -->
+      <div id="product-image-container">
+        <img src={getProductImage(product)} alt={product.name} class="w-full rounded-xl shadow-md" loading="eager" id="main-product-image" />
       </div>
 
       <!-- Thông tin sản phẩm -->
@@ -72,8 +79,11 @@ function getProductImage(product: Product): string {
         <ProductDetailIsland client:visible product={product} />
 
         <div class="flex gap-3 pt-2">
+          <a href="https://zalo.me/0901467300" class="btn btn-primary">
+            Liên hệ
+          </a>
           {product.glt_kiotvietshop_url && (
-            <a href={product.glt_kiotvietshop_url} target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+            <a href={product.glt_kiotvietshop_url} target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-outline">
               Đặt hàng online
             </a>
           )}
@@ -83,6 +93,7 @@ function getProductImage(product: Product): string {
             </a>
           )}
         </div>
+
 
         <!-- <div class="text-xs text-base-content/50 pt-4">
           Mã hàng: {product.code} • ID: {product.id}
