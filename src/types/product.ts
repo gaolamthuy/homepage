@@ -104,15 +104,18 @@ export interface LayoutProps {
 
 /**
  * Interface định nghĩa cấu trúc dữ liệu album item từ API
+ * Khớp với cấu trúc từ album_website.json
  */
 export interface AlbumItem {
-  id: number;
-  created_at: string;
+  id: string;
   title: string;
-  url: string;
   type: string;
-  updated_at: string;
-  s3_searchkey: string;
+  path: string;
+  rev: string | null;
+  updated_at: string | null;
+  created_at: string;
+  public_url_with_rev: string;
+  r2_dev_url: string;
 }
 
 /**

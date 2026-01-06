@@ -14,20 +14,58 @@ export interface CategoriesResponse {
 
 /**
  * Lấy danh sách sản phẩm từ PUBLIC_API_URL
+ * @returns Promise<ProductResponse> - Dữ liệu sản phẩm từ API
+ * @throws Error nếu PUBLIC_API_URL không được cấu hình hoặc fetch thất bại
  */
 export async function getProducts(): Promise<ProductResponse> {
-  const apiUrl = import.meta.env.PUBLIC_API_URL + "/products_data.json";
-  const res = await fetch(apiUrl);
-  if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-  return (await res.json()) as ProductResponse;
+  const baseUrl = import.meta.env.PUBLIC_API_URL;
+  if (!baseUrl || baseUrl.trim() === '') {
+    throw new Error('PUBLIC_API_URL không được cấu hình trong file .env.local');
+  }
+  
+  // Đảm bảo baseUrl không có trailing slash
+  const cleanBaseUrl = baseUrl.replace(/\/$/, '');
+  const apiUrl = `${cleanBaseUrl}/products_data.json`;
+  
+  try {
+    const res = await fetch(apiUrl);
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status} khi fetch ${apiUrl}`);
+    }
+    return (await res.json()) as ProductResponse;
+  } catch (error) {
+    if (error instanceof TypeError && error.message.includes('Failed to parse URL')) {
+      throw new Error(`URL không hợp lệ: ${apiUrl}. Vui lòng kiểm tra PUBLIC_API_URL trong .env.local`);
+    }
+    throw error;
+  }
 }
 
 /**
  * Lấy danh sách danh mục từ PUBLIC_API_URL
+ * @returns Promise<CategoriesResponse> - Dữ liệu danh mục từ API
+ * @throws Error nếu PUBLIC_API_URL không được cấu hình hoặc fetch thất bại
  */
 export async function getCategories(): Promise<CategoriesResponse> {
-  const apiUrl = import.meta.env.PUBLIC_API_URL + "/categories_data.json";
-  const res = await fetch(apiUrl);
-  if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-  return (await res.json()) as CategoriesResponse;
+  const baseUrl = import.meta.env.PUBLIC_API_URL;
+  if (!baseUrl || baseUrl.trim() === '') {
+    throw new Error('PUBLIC_API_URL không được cấu hình trong file .env.local');
+  }
+  
+  // Đảm bảo baseUrl không có trailing slash
+  const cleanBaseUrl = baseUrl.replace(/\/$/, '');
+  const apiUrl = `${cleanBaseUrl}/categories_data.json`;
+  
+  try {
+    const res = await fetch(apiUrl);
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status} khi fetch ${apiUrl}`);
+    }
+    return (await res.json()) as CategoriesResponse;
+  } catch (error) {
+    if (error instanceof TypeError && error.message.includes('Failed to parse URL')) {
+      throw new Error(`URL không hợp lệ: ${apiUrl}. Vui lòng kiểm tra PUBLIC_API_URL trong .env.local`);
+    }
+    throw error;
+  }
 }
