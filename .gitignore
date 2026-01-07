@@ -26,8 +26,8 @@ pnpm-debug.log*
 .idea/
 
 # docs
-/docs
 /n8n
+/docs
 
 # git
 .gitmessage

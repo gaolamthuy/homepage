@@ -1,0 +1,363 @@
+---
+/**
+ * Trang hiển thị thông tin customer với 5 invoice gần nhất
+ * Query từ Supabase view v_customer_client bằng contact_number từ URL
+ * URL format: /customer?phone=0901234567
+ */
+
+import Layout from '../layouts/Layout.astro';
+import { createSupabaseClient } from '../lib/supabase';
+import type { CustomerClient } from '../types/customer';
+import type { RecentInvoice } from '../types/customer';
+
+// Lấy contact_number hoặc customer_code từ URL query parameter
+const phoneParam = Astro.url.searchParams.get('phone');
+const codeParam = Astro.url.searchParams.get('code');
+
+let customer: CustomerClient | null = null;
+let error: string | null = null;
+let phoneNumber: string | null = null;
+let customerCode: string | null = null;
+
+// Validate và sanitize phone number
+function validatePhoneNumber(phone: string | null): string | null {
+  if (!phone) return null;
+  
+  // Loại bỏ khoảng trắng và ký tự đặc biệt, chỉ giữ số
+  const cleaned = phone.replace(/\D/g, '');
+  
+  // Kiểm tra độ dài (số điện thoại VN thường 10-11 số)
+  if (cleaned.length < 9 || cleaned.length > 11) {
+    return null;
+  }
+  
+  return cleaned;
+}
+
+phoneNumber = validatePhoneNumber(phoneParam);
+customerCode = codeParam ? codeParam.trim() : null;
+
+// Query từ Supabase nếu có phone number hoặc customer_code hợp lệ
+// Ưu tiên query bằng customer_code trước (để test)
+if (customerCode) {
+  try {
+    const supabase = createSupabaseClient();
+
+    // Query với customer_code (exact match)
+    const { data, error: queryError } = await supabase
+      .from('v_customer_client')
+      .select('*')
+      .eq('customer_code', customerCode)
+      .eq('glt_is_active', true)
+      .limit(1)
+      .maybeSingle();
+    
+    if (data) {
+      // Parse recent_invoices từ JSON
+      const recentInvoices = Array.isArray(data.recent_invoices) 
+        ? data.recent_invoices as RecentInvoice[]
+        : [];
+      
+      customer = {
+        customer_id: data.customer_id,
+        customer_kiotviet_id: data.customer_kiotviet_id,
+        customer_code: data.customer_code,
+        customer_name: data.customer_name,
+        contact_number: data.contact_number,
+        address: data.address,
+        customer_group: data.customer_group,
+        glt_customer_group_name: data.glt_customer_group_name,
+        debt: data.debt,
+        glt_is_active: data.glt_is_active,
+        customer_created_date: data.customer_created_date,
+        recent_invoices: recentInvoices,
+        recent_invoice_count: data.recent_invoice_count || 0,
+        total_invoice_count: data.total_invoice_count || 0,
+        total_purchase_amount: data.total_purchase_amount || 0,
+      };
+    } else if (queryError) {
+      error = `Lỗi khi query Supabase với customer_code: ${queryError.message}`;
+    } else {
+      // Không có data và không có error - có thể là không tìm thấy
+      error = `Không tìm thấy khách hàng với mã: ${customerCode}.`;
+    }
+  } catch (err) {
+    error = err instanceof Error ? err.message : 'Lỗi không xác định khi query Supabase';
+  }
+} else if (phoneNumber) {
+  try {
+    const supabase = createSupabaseClient();
+    
+    // Query view v_customer_client với contact_number
+    // Lưu ý: contact_number có thể chứa nhiều số (VD: "0909519279 0978052596")
+    // Tìm số điện thoại trong chuỗi bằng cách dùng ILIKE với pattern matching
+    let finalData = null;
+    let finalError = null;
+    
+    // Thử nhiều cách query để đảm bảo tìm được
+    // Cách 1: Query với số điện thoại đầy đủ (dùng ilike với pattern)
+    const pattern1 = `%${phoneNumber}%`;
+    let { data, error: queryError } = await supabase
+      .from('v_customer_client')
+      .select('*')
+      .ilike('contact_number', pattern1)
+      .eq('glt_is_active', true)
+      .limit(1)
+      .maybeSingle();
+    
+    if (data) {
+      finalData = data;
+    } else if (queryError) {
+      finalError = queryError;
+    }
+    
+    // Cách 2: Nếu không tìm thấy, thử với 9 số cuối
+    if (!finalData && !finalError && phoneNumber.length >= 10) {
+      const phoneLast9 = phoneNumber.slice(-9);
+      const pattern2 = `%${phoneLast9}%`;
+      const result2 = await supabase
+        .from('v_customer_client')
+        .select('*')
+        .ilike('contact_number', pattern2)
+        .eq('glt_is_active', true)
+        .limit(1)
+        .maybeSingle();
+      
+      if (result2.data) {
+        finalData = result2.data;
+      } else if (result2.error) {
+        finalError = result2.error;
+      }
+    }
+    
+    // Cách 3: Thử exact match (nếu số điện thoại là exact)
+    if (!finalData && !finalError) {
+      const result3 = await supabase
+        .from('v_customer_client')
+        .select('*')
+        .eq('contact_number', phoneNumber)
+        .eq('glt_is_active', true)
+        .limit(1)
+        .maybeSingle();
+      
+      if (result3.data) {
+        finalData = result3.data;
+      } else if (result3.error && !finalError) {
+        finalError = result3.error;
+      }
+    }
+    
+    // Cách 4: nếu vẫn không có dữ liệu, finalError sẽ được dùng để hiển thị lỗi chung
+    if (finalError) {
+      throw new Error(`Lỗi khi query Supabase: ${finalError.message}`);
+    }
+    
+    if (finalData) {
+      // Parse recent_invoices từ JSON
+      const recentInvoices = Array.isArray(finalData.recent_invoices) 
+        ? finalData.recent_invoices as RecentInvoice[]
+        : [];
+      
+      customer = {
+        customer_id: finalData.customer_id,
+        customer_kiotviet_id: finalData.customer_kiotviet_id,
+        customer_code: finalData.customer_code,
+        customer_name: finalData.customer_name,
+        contact_number: finalData.contact_number,
+        address: finalData.address,
+        customer_group: finalData.customer_group,
+        glt_customer_group_name: finalData.glt_customer_group_name,
+        debt: finalData.debt,
+        glt_is_active: finalData.glt_is_active,
+        customer_created_date: finalData.customer_created_date,
+        recent_invoices: recentInvoices,
+        recent_invoice_count: finalData.recent_invoice_count,
+        total_invoice_count: finalData.total_invoice_count,
+        total_purchase_amount: finalData.total_purchase_amount,
+      };
+    }
+  } catch (err) {
+    error = err instanceof Error ? err.message : 'Có lỗi xảy ra khi tải dữ liệu';
+  }
+} else if (phoneParam) {
+  // Có phone param nhưng không hợp lệ
+  error = 'Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại 9-11 chữ số.';
+} else {
+  // Không có param nào - yêu cầu nhập vào URL
+  error = 'Vui lòng nhập tham số vào URL: /customer?code=KH000188 hoặc /customer?phone=0901234567';
+}
+
+// Format số tiền VND
+const formatCurrency = (amount: number | null | undefined): string => {
+  if (amount === null || amount === undefined || isNaN(amount)) {
+    return '0 ₫';
+  }
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+  }).format(amount);
+};
+
+// Format ngày tháng
+const formatDate = (dateString: string | null): string => {
+  if (!dateString) return 'N/A';
+  try {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('vi-VN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date);
+  } catch {
+    return dateString;
+  }
+};
+---
+
+<Layout 
+  title="Tra cứu khách hàng - Gạo Lâm Thúy"
+  description="Xem thông tin khách hàng và lịch sử mua hàng"
+>
+  <main class="container mx-auto px-4 py-8">
+    <h1 class="text-4xl font-bold mb-8 text-center">Tra cứu khách hàng</h1>
+
+    {/* Hiển thị lỗi hoặc hướng dẫn */}
+    {error && (
+      <div class="alert alert-warning mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <div>
+          <h3 class="font-bold">Hướng dẫn sử dụng</h3>
+          <div class="text-sm mt-2">{error}</div>
+          <div class="text-sm mt-4">
+            <p class="font-semibold mb-2">Ví dụ URL:</p>
+            <ul class="list-disc list-inside space-y-1">
+              <li><code class="bg-base-200 px-2 py-1 rounded">/customer?code=KH000188</code> - Tra cứu bằng mã khách hàng</li>
+              <li><code class="bg-base-200 px-2 py-1 rounded">/customer?phone=0972987584</code> - Tra cứu bằng số điện thoại</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Không tìm thấy customer */}
+    {phoneNumber && !customer && !error && (
+      <div class="alert alert-warning">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <div>
+          <h3 class="font-bold">Không tìm thấy khách hàng</h3>
+          <div class="text-sm">Không tìm thấy khách hàng với số điện thoại: <strong>{phoneParam}</strong></div>
+        </div>
+      </div>
+    )}
+
+    {/* Hiển thị thông tin customer */}
+    {customer && (
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          {/* Header: Thông tin customer */}
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+            <div>
+              <h2 class="card-title text-2xl">{customer.customer_name}</h2>
+              <p class="text-base-content/70">
+                Mã KH: <span class="font-semibold">{customer.customer_code}</span>
+              </p>
+              {customer.contact_number && (
+                <p class="text-base-content/70">
+                  SĐT: <span class="font-semibold">{customer.contact_number}</span>
+                </p>
+              )}
+              {customer.address && (
+                <p class="text-base-content/70">
+                  Địa chỉ: {customer.address}
+                </p>
+              )}
+            </div>
+            
+            {/* Thống kê */}
+            <div class="stats stats-vertical md:stats-horizontal shadow">
+              <div class="stat">
+                <div class="stat-title">Tổng đơn</div>
+                <div class="stat-value text-primary">{customer.total_invoice_count}</div>
+              </div>
+              <div class="stat">
+                <div class="stat-title">Tổng tiền</div>
+                <div class="stat-value text-secondary">
+                  {formatCurrency(customer.total_purchase_amount)}
+                </div>
+              </div>
+              {customer.debt && customer.debt > 0 && (
+                <div class="stat">
+                  <div class="stat-title">Công nợ</div>
+                  <div class="stat-value text-error">{formatCurrency(customer.debt)}</div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 5 Invoice gần nhất */}
+          <div class="divider"></div>
+          <h3 class="text-xl font-semibold mb-4">
+            5 đơn hàng gần nhất 
+            <span class="badge badge-primary badge-lg ml-2">
+              {customer.recent_invoice_count}
+            </span>
+          </h3>
+
+          {customer.recent_invoices.length === 0 ? (
+            <div class="alert alert-info">
+              <span>Chưa có đơn hàng nào</span>
+            </div>
+          ) : (
+            <div class="overflow-x-auto">
+              <table class="table table-zebra">
+                <thead>
+                  <tr>
+                    <th>Mã đơn</th>
+                    <th>Ngày mua</th>
+                    <th>Tổng tiền</th>
+                    <th>Đã thanh toán</th>
+                    <th>Trạng thái</th>
+                    <th>Chi nhánh</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {customer.recent_invoices.map((invoice) => (
+                    <tr>
+                      <td class="font-semibold">{invoice.code}</td>
+                      <td>{formatDate(invoice.purchase_date)}</td>
+                      <td class="font-semibold">{formatCurrency(invoice.total)}</td>
+                      <td>
+                        <span class={`badge ${invoice.total_payment === invoice.total ? 'badge-success' : 'badge-warning'}`}>
+                          {formatCurrency(invoice.total_payment)}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="badge badge-info">{invoice.status_value}</span>
+                      </td>
+                      <td>{invoice.branch_name || 'N/A'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Nút tìm kiếm lại */}
+          <div class="divider"></div>
+          <div class="card-actions justify-end">
+            <a href="/customer" class="btn btn-outline">
+              Tìm kiếm khác
+            </a>
+          </div>
+        </div>
+      </div>
+    )}
+  </main>
+</Layout>
+
