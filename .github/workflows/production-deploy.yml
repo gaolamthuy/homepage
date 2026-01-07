@@ -23,11 +23,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full history to ensure pnpm-lock.yaml is available
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 8
+          version: 9  # Match với lockfileVersion trong pnpm-lock.yaml
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
