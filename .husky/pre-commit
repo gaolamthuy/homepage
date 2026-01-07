@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Chạy linter trước khi commit
+echo "🔍 Running linter..."
+pnpm run lint || exit 1
+
+# Kiểm tra build trước khi commit (tùy chọn, có thể comment nếu chậm)
+# echo "🏗️  Checking build..."
+# pnpm run build || exit 1
+
+echo "✅ Pre-commit checks passed!"
+

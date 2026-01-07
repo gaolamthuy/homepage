@@ -6,7 +6,9 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "lint": "astro check",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.13",

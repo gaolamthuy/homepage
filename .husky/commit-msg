@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Kiểm tra format commit message
+commit_msg=$(cat "$1")
+
+# Kiểm tra commit message không được rỗng
+if [ -z "$commit_msg" ]; then
+  echo "❌ Commit message không được để trống!"
+  exit 1
+fi
+
+# Kiểm tra commit message có type prefix không (tùy chọn)
+# Uncomment nếu muốn enforce commit message format
+# if ! echo "$commit_msg" | grep -qE "^(feat|fix|docs|style|refactor|test|chore|perf|ci):"; then
+#   echo "❌ Commit message phải bắt đầu bằng type (feat, fix, docs, etc.)"
+#   echo "   Ví dụ: feat: Thêm tính năng mới"
+#   exit 1
+# fi
+
+echo "✅ Commit message OK!"
+

@@ -28,3 +28,6 @@ pnpm-debug.log*
 # docs
 /docs
 /n8n
+
+# git
+.gitmessage

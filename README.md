@@ -138,6 +138,34 @@ Sử dụng các component daisyUI:
 - **Stats**: Thống kê
 - **Grid**: Layout responsive
 
+## 🔀 Git Workflow
+
+Project sử dụng 2-branch workflow:
+
+- **`main`**: Production branch - chỉ merge qua Pull Request
+- **`staging`**: Development branch - push trực tiếp khi develop
+
+### Workflow cơ bản:
+
+```bash
+# 1. Làm việc trên staging
+git checkout staging
+git pull origin staging
+
+# 2. Develop và commit
+# ... make changes ...
+git add .
+git commit -m "feat: Tính năng mới"
+
+# 3. Push lên staging (tự động deploy preview)
+git push origin staging
+
+# 4. Tạo PR trên GitHub để merge vào main (production)
+# Vào GitHub → New Pull Request: staging → main
+```
+
+📖 Xem chi tiết trong [GIT_WORKFLOW.md](./GIT_WORKFLOW.md)
+
 ## 📝 Ghi chú
 
 - Tất cả code được comment bằng tiếng Việt
