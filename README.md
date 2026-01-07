@@ -64,19 +64,40 @@ Sử dụng theme bumblebee tùy chỉnh với các màu sắc:
 
 ## 🚀 Chạy dự án
 
+### Yêu cầu
+- Node.js >= 18.0.0
+- pnpm >= 8.0.0 (khuyến nghị sử dụng pnpm thay vì npm/yarn)
+
+### Cài đặt pnpm (nếu chưa có)
+```bash
+# Sử dụng npm để cài pnpm
+npm install -g pnpm
+
+# Hoặc sử dụng corepack (Node.js >= 16.13)
+corepack enable
+corepack prepare pnpm@latest --activate
+```
+
+### Chạy dự án
 ```bash
 # Cài đặt dependencies
-npm install
+pnpm install
 
 # Chạy development server
-npm run dev
+pnpm dev
 
 # Build production
-npm run build
+pnpm build
 
 # Preview production build
-npm run preview
+pnpm preview
 ```
+
+### Lưu ý về pnpm
+- **pnpm** sử dụng hard links để tiết kiệm dung lượng đĩa
+- Tốc độ install/build nhanh hơn npm/yarn
+- Strict dependency resolution giúp tránh lỗi phantom dependencies
+- File `pnpm-lock.yaml` được commit vào git để đảm bảo consistency
 
 ## 📱 Responsive Design
 
