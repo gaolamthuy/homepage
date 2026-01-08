@@ -1,0 +1,183 @@
+---
+/**
+ * Trang gallery hiển thị album bảng giá
+ * Chia thành 4 groups theo type: pricetable-retail, pricetable-whole, pricetable-utdao, misc
+ */
+
+import Layout from '../layouts/Layout.astro';
+import type { AlbumItem, AlbumData } from '../types/product';
+
+// Fetch album data từ API
+let albumItems: AlbumItem[] = [];
+let error: string | null = null;
+
+try {
+  const baseUrl = import.meta.env.PUBLIC_API_URL;
+  if (!baseUrl || baseUrl.trim() === '') {
+    error = 'PUBLIC_API_URL không được cấu hình';
+  } else {
+    const cleanBaseUrl = baseUrl.replace(/\/$/, '');
+    const apiUrl = `${cleanBaseUrl}/album_website.json`;
+    const response = await fetch(apiUrl);
+    
+    if (response.ok) {
+      const data: AlbumData = await response.json();
+      albumItems = data.album_website || [];
+    } else {
+      error = `Lỗi khi fetch album data: HTTP ${response.status}`;
+    }
+  }
+} catch (err) {
+  error = err instanceof Error ? err.message : 'Lỗi không xác định khi tải album';
+}
+
+/**
+ * Map type sang tên hiển thị tiếng Việt
+ */
+function getTypeLabel(type: string): string {
+  const typeMap: Record<string, string> = {
+    'pricetable-retail': 'Bảng giá lẻ',
+    'pricetable-whole': 'Bảng giá 200kg',
+    'pricetable-utdao': 'Bảng giá 500kg',
+    'misc': 'Khác',
+  };
+  return typeMap[type] || type;
+}
+
+/**
+ * Group album items theo type và sắp xếp theo rev (mới nhất trước)
+ */
+function groupByType(items: AlbumItem[]): Record<string, AlbumItem[]> {
+  const grouped: Record<string, AlbumItem[]> = {};
+  
+  items.forEach((item) => {
+    if (!grouped[item.type]) {
+      grouped[item.type] = [];
+    }
+    grouped[item.type].push(item);
+  });
+  
+  // Sắp xếp mỗi group theo rev (mới nhất trước)
+  Object.keys(grouped).forEach((type) => {
+    grouped[type].sort((a, b) => {
+      const revA = a.rev ? parseInt(a.rev, 10) : 0;
+      const revB = b.rev ? parseInt(b.rev, 10) : 0;
+      return revB - revA; // Mới nhất trước
+    });
+  });
+  
+  return grouped;
+}
+
+/**
+ * Format datetime từ rev timestamp (milliseconds)
+ */
+function formatDateTime(rev: string | null): string {
+  if (!rev) return 'N/A';
+  
+  try {
+    const timestamp = parseInt(rev, 10);
+    if (isNaN(timestamp)) return 'N/A';
+    
+    const date = new Date(timestamp);
+    return new Intl.DateTimeFormat('vi-VN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date);
+  } catch {
+    return 'N/A';
+  }
+}
+
+const groupedAlbums = groupByType(albumItems);
+
+// Định nghĩa thứ tự hiển thị các groups
+const typeOrder = ['pricetable-retail', 'pricetable-whole', 'pricetable-utdao', 'misc'];
+---
+
+<Layout
+  title="Album Bảng Giá - Gạo Lâm Thúy"
+  description="Xem các bảng giá gạo, tấm, nếp mới nhất"
+>
+  <main class="container mx-auto px-4 py-8">
+    <h1 class="text-4xl font-bold mb-8 text-center">Album Bảng Giá</h1>
+
+    {error ? (
+      <div class="alert alert-error mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>{error}</span>
+      </div>
+    ) : albumItems.length === 0 ? (
+      <div class="alert alert-info mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>Chưa có ảnh nào trong album</span>
+      </div>
+    ) : (
+      typeOrder.map((type) => {
+        const items = groupedAlbums[type] || [];
+        if (items.length === 0) return null;
+        
+        return (
+          <section class="mb-12">
+            <h2 class="text-3xl font-semibold mb-6 text-center">
+              {getTypeLabel(type)}
+              <span class="badge badge-primary badge-lg ml-3">{items.length}</span>
+            </h2>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {items.map((item) => {
+                const imageUrl = item.public_url_with_rev || item.r2_dev_url || '';
+                const displayTitle = item.title_public || item.title;
+                
+                return (
+                  <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+                    <figure class="aspect-[3/4] overflow-hidden cursor-pointer">
+                      {imageUrl ? (
+                        <a
+                          href={imageUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="block w-full h-full"
+                        >
+                          <img
+                            src={imageUrl}
+                            alt={displayTitle}
+                            class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                            width="1200"
+                            height="1600"
+                            loading="lazy"
+                          />
+                        </a>
+                      ) : (
+                        <div class="w-full h-full bg-base-200 flex items-center justify-center">
+                          <span class="text-base-content/50">Không có ảnh</span>
+                        </div>
+                      )}
+                    </figure>
+                    <div class="card-body p-4">
+                      <h3 class="card-title text-lg line-clamp-2 min-h-[3.5rem]">
+                        {displayTitle}
+                      </h3>
+                      <div class="text-sm text-base-content/70 mt-2">
+                        <p>
+                          <span class="font-semibold">Cập nhật:</span> {formatDateTime(item.rev)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        );
+      })
+    )}
+  </main>
+</Layout>

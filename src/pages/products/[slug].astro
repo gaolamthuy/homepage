@@ -13,36 +13,115 @@ interface Props {
   product: Product;
 }
 
+// Enable static generation cho trang này
+export const prerender = true;
+
 export async function getStaticPaths() {
-  const data = (await getProducts()) as ProductResponse;
-  const products = data.products_data || [];
+  try {
+    const data = (await getProducts()) as ProductResponse;
+    const products = data.products_data || [];
 
-  // Lọc những sản phẩm có glt_slug hợp lệ
-  const itemsWithSlug = products.filter((p) => Boolean(p.glt_slug));
+    // Lọc những sản phẩm có glt_slug hợp lệ
+    // Chỉ cần glt_slug, không cần cả full_name và name vì có thể có trường hợp chỉ có một trong hai
+    const itemsWithSlug = products.filter((p) => Boolean(p.glt_slug));
 
-  return itemsWithSlug.map((p) => ({
-    params: { slug: p.glt_slug as string },
-    props: { product: p },
-  }));
+    const paths = itemsWithSlug.map((p) => ({
+      params: { slug: p.glt_slug as string },
+      props: { product: p },
+    }));
+
+    // Log để debug (chỉ trong dev mode)
+    if (import.meta.env.DEV) {
+      console.log(`[getStaticPaths] Generated ${paths.length} product paths`);
+      // Log một vài slug để kiểm tra
+      if (paths.length > 0) {
+        console.log(`[getStaticPaths] Sample slugs:`, paths.slice(0, 5).map(p => p.params.slug));
+      }
+    }
+
+    return paths;
+  } catch (error) {
+    console.error('Error generating static paths for products:', error);
+    // Trả về mảng rỗng nếu có lỗi, để tránh crash
+    return [];
+  }
 }
 
 const { product } = Astro.props as Props;
 
+// Nếu product không tồn tại (trường hợp hiếm khi getStaticPaths không match), redirect về trang products
+if (!product) {
+  if (import.meta.env.DEV) {
+    console.warn(`[ProductDetail] Product not found for slug: ${Astro.params.slug}`);
+  }
+  return Astro.redirect('/products', 302);
+}
+
+// Log để debug trong dev mode
+if (import.meta.env.DEV) {
+  console.log(`[ProductDetail] Rendering product:`, {
+    slug: Astro.params.slug,
+    name: product?.name,
+    full_name: product?.full_name,
+    hasImages: Boolean(product?.glt_images?.length),
+  });
+}
+
+/**
+ * Hàm lấy URL hình ảnh chính của sản phẩm cho trang chi tiết
+ * Ưu tiên các ảnh có role: feature-main > closeup-main > feature-thumbnail > closeup-thumbnail
+ * @param product - Đối tượng sản phẩm
+ * @returns URL hình ảnh hoặc placeholder
+ */
 function getProductImage(product: Product): string {
-  // Ưu tiên main image từ glt_images
   if (product.glt_images && product.glt_images.length > 0) {
-    const mainImage = product.glt_images.find(img => img.role === 'main');
-    if (mainImage) {
-      return mainImage.url;
+    // Lọc các ảnh có role trong danh sách: feature-main, feature-thumbnail, closeup-main, closeup-thumbnail
+    const allowedRoles = [
+      'feature-main',
+      'feature-thumbnail',
+      'closeup-main',
+      'closeup-thumbnail',
+    ];
+    
+    const filteredImages = product.glt_images.filter(img => 
+      allowedRoles.includes(img.role)
+    );
+    
+    if (filteredImages.length > 0) {
+      // Ưu tiên: feature-main > closeup-main > feature-thumbnail > closeup-thumbnail
+      const featureMain = filteredImages.find(img => img.role === 'feature-main');
+      if (featureMain) {
+        return featureMain.url;
+      }
+      
+      const closeupMain = filteredImages.find(img => img.role === 'closeup-main');
+      if (closeupMain) {
+        return closeupMain.url;
+      }
+      
+      const featureThumbnail = filteredImages.find(img => img.role === 'feature-thumbnail');
+      if (featureThumbnail) {
+        return featureThumbnail.url;
+      }
+      
+      const closeupThumbnail = filteredImages.find(img => img.role === 'closeup-thumbnail');
+      if (closeupThumbnail) {
+        return closeupThumbnail.url;
+      }
+      
+      // Fallback: lấy ảnh đầu tiên từ filtered images
+      return filteredImages[0].url;
     }
-    // Fallback: lấy ảnh đầu tiên
+    
+    // Fallback: nếu không có ảnh trong danh sách allowed, lấy ảnh đầu tiên
     return product.glt_images[0].url;
   }
+  
   return 'https://via.placeholder.com/800x600?text=No+Image';
 }
 ---
 
-<Layout title={`${product.full_name} - Gạo Lâm Thúy`} description={`Chi tiết sản phẩm ${product.full_name}`}>
+<Layout title={`${product?.full_name || product?.name || 'Sản phẩm'} - Gạo Lâm Thúy`} description={`Chi tiết sản phẩm ${product?.full_name || product?.name || 'Sản phẩm'}`}>
   <nav slot="breadcrumb" class="breadcrumbs text-sm px-4 pt-4" aria-label="Breadcrumb">
     <ul>
       <li><a href="/">Trang chủ</a></li>
@@ -50,7 +129,7 @@ function getProductImage(product: Product): string {
       {product.category_name && (
         <li><a href={`/products?category=${encodeURIComponent(product.category_name)}`}>{product.category_name}</a></li>
       )}
-      <li aria-current="page">{product.name}</li>
+      <li aria-current="page">{product?.name || product?.full_name || 'Sản phẩm'}</li>
     </ul>
   </nav>
   <div slot="breadcrumb" class="px-4 pt-2">
@@ -67,13 +146,13 @@ function getProductImage(product: Product): string {
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Hình ảnh lớn - sẽ được ProductDetailIsland quản lý -->
       <div id="product-image-container">
-        <img src={getProductImage(product)} alt={product.name} class="w-full rounded-xl shadow-md" loading="eager" id="main-product-image" />
+        <img src={getProductImage(product)} alt={product?.name || product?.full_name || 'Sản phẩm'} class="w-full rounded-xl shadow-md" loading="eager" id="main-product-image" />
       </div>
 
       <!-- Thông tin sản phẩm -->
       <div class="space-y-4">
         <div class="space-y-2">
-        <h1 class="text-2xl font-extrabold text-base-content">{product.name}</h1>
+        <h1 class="text-2xl font-extrabold text-base-content">{product?.name || product?.full_name || 'Sản phẩm'}</h1>
             
           <div class="flex items-center gap-2 flex-wrap">
             <div class="badge badge-outline">{product.category_name}</div>

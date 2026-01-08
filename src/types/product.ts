@@ -116,6 +116,7 @@ export interface AlbumItem {
   created_at: string;
   public_url_with_rev: string;
   r2_dev_url: string;
+  title_public?: string;
 }
 
 /**

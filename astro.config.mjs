@@ -4,7 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@astrojs/react";
 
 export default defineConfig({
-  output: 'server', // Enable SSR để có thể đọc URL params tại runtime
+  output: 'static', // Static site generation - tất cả trang sẽ được pre-render
   vite: {
     plugins: [tailwindcss()],
     build: {

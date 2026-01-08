@@ -31,25 +31,51 @@ function formatPrice(price: number): string {
 
 /**
  * Hàm lấy URL hình ảnh chính của sản phẩm
- * Ưu tiên main-thumbnail từ glt_images, sau đó main image
+ * Ưu tiên các ảnh có role: feature-thumbnail > feature-main > closeup-thumbnail > closeup-main
  * @param product - Đối tượng sản phẩm
  * @returns URL hình ảnh hoặc placeholder
  */
 function getProductImage(product: Product): string {
-  // Tìm ảnh thumbnail từ glt_images
   if (product.glt_images && product.glt_images.length > 0) {
-    const thumbnailImage = product.glt_images.find(img => img.role === 'main-thumbnail');
-    if (thumbnailImage) {
-      return thumbnailImage.url;
+    // Lọc các ảnh có role trong danh sách: feature-main, feature-thumbnail, closeup-main, closeup-thumbnail
+    const allowedRoles = [
+      'feature-main',
+      'feature-thumbnail',
+      'closeup-main',
+      'closeup-thumbnail',
+    ];
+    
+    const filteredImages = product.glt_images.filter(img => 
+      allowedRoles.includes(img.role)
+    );
+    
+    if (filteredImages.length > 0) {
+      // Ưu tiên: feature-thumbnail > feature-main > closeup-thumbnail > closeup-main
+      const featureThumbnail = filteredImages.find(img => img.role === 'feature-thumbnail');
+      if (featureThumbnail) {
+        return featureThumbnail.url;
+      }
+      
+      const featureMain = filteredImages.find(img => img.role === 'feature-main');
+      if (featureMain) {
+        return featureMain.url;
+      }
+      
+      const closeupThumbnail = filteredImages.find(img => img.role === 'closeup-thumbnail');
+      if (closeupThumbnail) {
+        return closeupThumbnail.url;
+      }
+      
+      const closeupMain = filteredImages.find(img => img.role === 'closeup-main');
+      if (closeupMain) {
+        return closeupMain.url;
+      }
+      
+      // Fallback: lấy ảnh đầu tiên từ filtered images
+      return filteredImages[0].url;
     }
     
-    // Nếu không có thumbnail, lấy ảnh main
-    const mainImage = product.glt_images.find(img => img.role === 'main');
-    if (mainImage) {
-      return mainImage.url;
-    }
-    
-    // Fallback: lấy ảnh đầu tiên
+    // Fallback: nếu không có ảnh trong danh sách allowed, lấy ảnh đầu tiên
     return product.glt_images[0].url;
   }
   
@@ -66,69 +92,103 @@ function hasPromotion(product: Product): boolean {
 }
 ---
 
-<div class="card w-full bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 group border border-base-300" data-product-category={product.category_name}>
-  <!-- Hình ảnh sản phẩm -->
-  <figure class={`relative overflow-hidden ${density === 'compact' ? 'h-40' : 'h-80'}`}>
-    <img 
-      src={getProductImage(product)} 
-      alt={product.name}
-      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-      loading="lazy"
-    />
-    
-    <!-- Badge có nhiều loại variant và khuyến mãi - cùng 1 line bên trái -->
-    <div class="absolute top-2 left-2 flex gap-1">
-      {showPromotionBadge && hasPromotion(product) && (
-        <div class="badge badge-primary badge-soft badge-sm">Khuyến mãi</div>
-      )}
-      {product.child_product && product.child_product.length > 0 && (
-        <div class="badge badge-primary badge-soft badge-sm">Nhiều loại</div>
-      )}
-    </div>
-    
-  </figure>
-
-  <!-- Nội dung thẻ -->
-  <div class="card-body p-4 bg-base-100/95 backdrop-blur-sm">
-    <!-- Tên sản phẩm -->
-    <h2 class="card-title text-lg font-bold text-base-content line-clamp-2 flex items-center gap-2">
-      <span>{product.full_name}</span>
-    </h2>
-<p>
-    <!-- Template đặt hàng -->
-    {showOrderTemplate && product.order_template && (
-      <div class="text-xs text-base-content/50 italic mt-1">
-        {product.order_template}
+{product.glt_slug ? (
+  <a 
+    href={`/products/${product.glt_slug}`}
+    class="card w-full bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 group border border-base-300 cursor-pointer block no-underline"
+    data-product-category={product.category_name}
+    aria-label={`Xem chi tiết ${product.full_name}`}
+  >
+    <!-- Hình ảnh sản phẩm -->
+    <figure class={`relative overflow-hidden ${density === 'compact' ? 'h-40' : 'h-80'}`}>
+      <img 
+        src={getProductImage(product)} 
+        alt={product.name}
+        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        loading="lazy"
+      />
+      
+      <!-- Badge có nhiều loại variant và khuyến mãi - cùng 1 line bên trái -->
+      <div class="absolute top-2 left-2 flex gap-1">
+        {showPromotionBadge && hasPromotion(product) && (
+          <div class="badge badge-primary badge-soft badge-sm">Khuyến mãi</div>
+        )}
+        {product.child_product && product.child_product.length > 0 && (
+          <div class="badge badge-primary badge-soft badge-sm">Nhiều loại</div>
+        )}
       </div>
-    )}
-</p>
-    <!-- Danh mục -->
-    <!-- <div class="badge badge-outline badge-sm">
-      {product.category_name}
-    </div> -->
-    
-    <!-- Giá sản phẩm -->
-    <div class="flex items-center justify-between mt-2">
-      <div class="flex items-center gap-2">
-        <span class="text-2xl font-bold text-primary bg-primary/10 px-2 py-1 rounded-lg">
-          {formatPrice(product.base_price)}
-        </span>
+    </figure>
+
+    <!-- Nội dung thẻ -->
+    <div class="card-body p-4 bg-base-100/95 backdrop-blur-sm">
+      <!-- Tên sản phẩm -->
+      <h2 class="card-title text-lg font-bold text-base-content line-clamp-2 flex items-center gap-2">
+        <span>{product.full_name}</span>
+      </h2>
+      <p>
+        <!-- Template đặt hàng -->
+        {showOrderTemplate && product.order_template && (
+          <div class="text-xs text-base-content/50 italic mt-1">
+            {product.order_template}
+          </div>
+        )}
+      </p>
+      
+      <!-- Giá sản phẩm -->
+      <div class="flex items-center justify-between mt-2">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl font-bold text-primary bg-primary/10 px-2 py-1 rounded-lg">
+            {formatPrice(product.base_price)}
+          </span>
+        </div>
       </div>
     </div>
-    
-    <!-- Actions -->
-    <div class="card-actions justify-end mt-4">
-      <!-- Link nội bộ đến trang chi tiết -->
-      {product.glt_slug && (
-        <a 
-          href={`/products/${product.glt_slug}`}
-          class="btn btn-primary btn-md shadow-lg hover:shadow-xl transition-all duration-300"
-          aria-label={`Xem chi tiết ${product.full_name}`}
-        >
-          Xem chi tiết
-        </a>
-      )}
+  </a>
+) : (
+  <div class="card w-full bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 group border border-base-300" data-product-category={product.category_name}>
+    <!-- Hình ảnh sản phẩm -->
+    <figure class={`relative overflow-hidden ${density === 'compact' ? 'h-40' : 'h-80'}`}>
+      <img 
+        src={getProductImage(product)} 
+        alt={product.name}
+        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        loading="lazy"
+      />
+      
+      <!-- Badge có nhiều loại variant và khuyến mãi - cùng 1 line bên trái -->
+      <div class="absolute top-2 left-2 flex gap-1">
+        {showPromotionBadge && hasPromotion(product) && (
+          <div class="badge badge-primary badge-soft badge-sm">Khuyến mãi</div>
+        )}
+        {product.child_product && product.child_product.length > 0 && (
+          <div class="badge badge-primary badge-soft badge-sm">Nhiều loại</div>
+        )}
+      </div>
+    </figure>
 
+    <!-- Nội dung thẻ -->
+    <div class="card-body p-4 bg-base-100/95 backdrop-blur-sm">
+      <!-- Tên sản phẩm -->
+      <h2 class="card-title text-lg font-bold text-base-content line-clamp-2 flex items-center gap-2">
+        <span>{product.full_name}</span>
+      </h2>
+      <p>
+        <!-- Template đặt hàng -->
+        {showOrderTemplate && product.order_template && (
+          <div class="text-xs text-base-content/50 italic mt-1">
+            {product.order_template}
+          </div>
+        )}
+      </p>
+      
+      <!-- Giá sản phẩm -->
+      <div class="flex items-center justify-between mt-2">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl font-bold text-primary bg-primary/10 px-2 py-1 rounded-lg">
+            {formatPrice(product.base_price)}
+          </span>
+        </div>
+      </div>
     </div>
   </div>
-</div>
+)}
