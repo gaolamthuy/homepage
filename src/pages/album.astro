@@ -131,6 +131,17 @@ function getTypeLabel(type: string): string {
           );
         })}
       </div>
+      <div class="flex justify-center w-full py-2 gap-2 flex-wrap">
+        {albumItems.map((item, index) => {
+          const itemId = `slide${index + 1}`;
+          const displayTitle = item.title_public || item.title;
+          return (
+            <a href={`#${itemId}`} class="btn btn-xs" title={displayTitle}>
+              {displayTitle}
+            </a>
+          );
+        })}
+      </div>
     )}
   </main>
 </Layout>
