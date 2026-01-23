@@ -10,6 +10,11 @@ export default defineConfig({
     build: {
       cssCodeSplit: false, // Đảm bảo CSS được bundle đúng cách
     },
+    server: {
+      allowedHosts: [
+        '90c62df8d938.ngrok-free.app',
+      ],
+    },
   },
   integrations: [react()],
 });
