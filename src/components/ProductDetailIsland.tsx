@@ -54,6 +54,9 @@ export default function ProductDetailIsland({
   const [currentSharedImageUrl, setCurrentSharedImageUrl] = useState<
     string | null
   >(null);
+  const [currentProductImageUrl, setCurrentProductImageUrl] = useState<
+    string | null
+  >(null);
 
   // Đảm bảo state được sync với props - chỉ chạy khi hasChild thay đổi
   useEffect(() => {
@@ -78,11 +81,22 @@ export default function ProductDetailIsland({
     loadSharedImages();
   }, []);
 
+  // Khởi tạo ảnh ban đầu khi component mount
+  useEffect(() => {
+    const initialImageUrl = getImageForVariant(selected);
+    if (initialImageUrl) {
+      setCurrentProductImageUrl(initialImageUrl);
+      setCurrentImageSource("product");
+    }
+  }, []); // Chỉ chạy một lần khi mount
+
   /**
-   * Hàm lấy URL hình ảnh cho variant được chọn
-   * Ưu tiên: main image từ glt_images, fallback: shared images
+   * Hàm lấy danh sách ảnh cho variant được chọn
+   * Lọc các ảnh có role: feature-main, feature-thumbnail, closeup-main, closeup-thumbnail
+   * @param variant - Variant key ('base' hoặc 'child')
+   * @returns Mảng các ảnh đã được filter theo role
    */
-  const getImageForVariant = useCallback(
+  const getFilteredImages = useCallback(
     (variant: VariantKey) => {
       let images;
 
@@ -96,16 +110,50 @@ export default function ProductDetailIsland({
         images = product.glt_images;
       }
 
+      if (!images || images.length === 0) {
+        return [];
+      }
+
+      // Lọc các ảnh có role trong danh sách: feature-main, feature-thumbnail, closeup-main, closeup-thumbnail
+      const allowedRoles = [
+        "feature-main",
+        "feature-thumbnail",
+        "closeup-main",
+        "closeup-thumbnail",
+      ];
+      return images.filter((img: any) => allowedRoles.includes(img.role));
+    },
+    [product]
+  );
+
+  /**
+   * Hàm lấy URL hình ảnh chính cho variant được chọn
+   * Ưu tiên: feature-main > closeup-main > feature-thumbnail > closeup-thumbnail > shared images
+   */
+  const getImageForVariant = useCallback(
+    (variant: VariantKey) => {
+      const filteredImages = getFilteredImages(variant);
+
       // Ưu tiên ảnh từ product trước
-      if (images && images.length > 0) {
-        // Tìm ảnh main
-        const mainImage = images.find((img: any) => img.role === "main");
-        if (mainImage) {
-          return mainImage.url;
+      if (filteredImages.length > 0) {
+        // Tìm ảnh feature-main trước
+        const featureMain = filteredImages.find(
+          (img: any) => img.role === "feature-main"
+        );
+        if (featureMain) {
+          return featureMain.url;
         }
 
-        // Fallback: lấy ảnh đầu tiên từ product
-        return images[0].url;
+        // Fallback: tìm closeup-main
+        const closeupMain = filteredImages.find(
+          (img: any) => img.role === "closeup-main"
+        );
+        if (closeupMain) {
+          return closeupMain.url;
+        }
+
+        // Fallback: lấy ảnh đầu tiên từ filtered images
+        return filteredImages[0].url;
       }
 
       // Fallback: sử dụng shared images
@@ -124,7 +172,7 @@ export default function ProductDetailIsland({
 
       return null;
     },
-    [product, sharedImages]
+    [getFilteredImages, sharedImages]
   );
 
   /**
@@ -164,6 +212,7 @@ export default function ProductDetailIsland({
         // Reset về product image khi variant thay đổi
         setCurrentImageSource("product");
         setCurrentSharedImageUrl(null);
+        setCurrentProductImageUrl(imageUrl);
       };
       img.onerror = () => {
         console.warn(`Failed to load image: ${imageUrl}`);
@@ -223,6 +272,34 @@ export default function ProductDetailIsland({
   }, []);
 
   /**
+   * Smart image switching: click product thumbnail → hiển thị product image
+   */
+  const handleProductImageClick = useCallback(
+    (imageUrl: string, altText: string) => {
+      const mainImage = document.getElementById(
+        "main-product-image"
+      ) as HTMLImageElement;
+      if (!mainImage) return;
+
+      // Nếu đang xem cùng ảnh → không làm gì
+      if (
+        currentImageSource === "product" &&
+        currentProductImageUrl === imageUrl
+      ) {
+        return;
+      }
+
+      // Hiển thị product image
+      mainImage.src = imageUrl;
+      mainImage.alt = altText;
+      setCurrentImageSource("product");
+      setCurrentProductImageUrl(imageUrl);
+      setCurrentSharedImageUrl(null);
+    },
+    [currentImageSource, currentProductImageUrl]
+  );
+
+  /**
    * Smart image switching: click shared image → hiển thị shared, click lại → về product image
    */
   const handleSharedImageClick = useCallback(
@@ -248,6 +325,7 @@ export default function ProductDetailIsland({
               : product.full_name;
           setCurrentImageSource("product");
           setCurrentSharedImageUrl(null);
+          setCurrentProductImageUrl(productImageUrl);
         }
       } else {
         // Hiển thị shared image
@@ -297,6 +375,74 @@ export default function ProductDetailIsland({
           </div>
         </div>
       )}
+
+      {/* Product Images Gallery - hiển thị các ảnh từ product_data.json */}
+      {(() => {
+        const filteredImages = getFilteredImages(selected);
+        if (filteredImages.length > 0) {
+          return (
+            <div className="mt-4 p-4 rounded-xl bg-base-100 shadow">
+              <h3 className="text-sm font-semibold mb-3 text-base-content/80">
+                Hình ảnh sản phẩm
+              </h3>
+              <div className="flex gap-2 overflow-x-auto pb-2">
+                {filteredImages.map((img: any, index: number) => {
+                  const isActive =
+                    currentImageSource === "product" &&
+                    currentProductImageUrl === img.url;
+
+                  return (
+                    <div
+                      key={`${img.id}-${index}`}
+                      className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden cursor-pointer hover:scale-105 transition-transform duration-200 ${
+                        isActive ? "ring-2 ring-primary" : ""
+                      }`}
+                      onClick={() =>
+                        handleProductImageClick(
+                          img.url,
+                          selected === "child" &&
+                            product.child_product &&
+                            product.child_product.length > 0
+                            ? product.child_product[0].full_name
+                            : product.full_name
+                        )
+                      }
+                      title={img.role}
+                    >
+                      <img
+                        src={img.url}
+                        alt={`${img.role} - ${
+                          selected === "child" &&
+                          product.child_product &&
+                          product.child_product.length > 0
+                            ? product.child_product[0].full_name
+                            : product.full_name
+                        }`}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors duration-200" />
+
+                      {/* Icon check khi đang xem ảnh này */}
+                      {isActive && (
+                        <div className="absolute top-1 right-1 w-4 h-4 bg-primary text-primary-content rounded-full flex items-center justify-center text-xs font-bold">
+                          ✓
+                        </div>
+                      )}
+
+                      {/* Badge hiển thị role */}
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs px-1 py-0.5 text-center truncate">
+                        {img.role.replace("-", " ")}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        }
+        return null;
+      })()}
 
       {hasChild && (
         // Variant selector - chỉ hiển thị khi có child_product
