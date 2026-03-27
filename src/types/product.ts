@@ -23,6 +23,13 @@ export interface Product {
   glt_shopee_url: string | null;
   glt_slug: string | null;
   /**
+   * Bảng giá theo kênh (API: utdao, whole); giá trị có thể null nếu chưa cấu hình
+   */
+  pricebooks?: {
+    utdao: number | null;
+    whole: number | null;
+  };
+  /**
    * Ảnh sản phẩm theo cấu trúc API mới
    * Mảng các ảnh với role khác nhau: main, main-thumbnail, etc.
    */
@@ -41,7 +48,8 @@ export interface Product {
     full_name: string;
     base_price: number;
     conversion_value: number;
-    base_price_per_masterunit: number;
+    /** Giá quy đổi theo đơn vị master (ví dụ đ/kg) — API: price_per_master_unit */
+    price_per_master_unit?: number;
   };
 
   /**
@@ -61,7 +69,7 @@ export interface Product {
       full_name: string;
       base_price: number;
       conversion_value: number;
-      base_price_per_masterunit: number;
+      price_per_master_unit?: number;
     };
     glt_images?: Array<{
       id: number;
