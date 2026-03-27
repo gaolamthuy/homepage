@@ -1,6 +1,6 @@
 ---
 /**
- * Trang album mới với carousel hiển thị ảnh
+ * Trang bảng giá hình ảnh - dễ chia sẻ trên mạng xã hội
  * Sử dụng DaisyUI carousel với next/prev buttons
  * Data từ: https://cdn.gaolamthuy.vn/homepage/album_website.json
  */
@@ -64,11 +64,14 @@ function getTypeLabel(type: string): string {
 ---
 
 <Layout
-  title="Album - Gạo Lâm Thúy"
-  description="Xem các bảng giá gạo, tấm, nếp mới nhất"
+  title="Bảng giá hình ảnh - Gạo Lâm Thúy"
+  description="Xem bảng giá dạng hình ảnh các sản phẩm gạo chất lượng cao từ Gạo Lâm Thúy - dễ chia sẻ trên mạng xã hội"
 >
   <main class="container mx-auto px-4 py-8">
-    <h1 class="text-4xl font-bold mb-8 text-center">Album Bảng Giá</h1>
+    <h1 class="text-4xl font-bold mb-8 text-center">Bảng Giá Hình Ảnh</h1>
+    <p class="text-center text-base-content/70 mb-8 max-w-2xl mx-auto">
+      Xem và tải xuống bảng giá dạng hình ảnh để dễ dàng chia sẻ trên mạng xã hội hoặc gửi cho khách hàng
+    </p>
 
     {error ? (
       <div class="alert alert-error mb-6">

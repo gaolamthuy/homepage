@@ -243,8 +243,7 @@ export default function ProductDetailIsland({
               unit: cp.child_unit.unit,
               full_name: cp.child_unit.full_name,
               conversion_value: cp.child_unit.conversion_value,
-              base_price_per_masterunit:
-                cp.child_unit.base_price_per_masterunit,
+              price_per_master_unit: cp.child_unit.price_per_master_unit,
             }
           : undefined,
       };
@@ -260,8 +259,7 @@ export default function ProductDetailIsland({
             unit: product.child_unit.unit,
             full_name: product.child_unit.full_name,
             conversion_value: product.child_unit.conversion_value,
-            base_price_per_masterunit:
-              product.child_unit.base_price_per_masterunit,
+            price_per_master_unit: product.child_unit.price_per_master_unit,
           }
         : undefined,
     };
@@ -368,10 +366,12 @@ export default function ProductDetailIsland({
             <span className="text-base-content/70">
               /{current.childUnit.unit}
             </span>
-            <span className="text-xs text-base-content/60">
-              (Quy đổi: {formatVnd(current.childUnit.base_price_per_masterunit)}
-              /kg)
-            </span>
+            {current.childUnit.price_per_master_unit != null && (
+              <span className="text-xs text-base-content/60">
+                (Quy đổi: {formatVnd(current.childUnit.price_per_master_unit)}
+                /kg)
+              </span>
+            )}
           </div>
         </div>
       )}
