@@ -6,22 +6,14 @@
  */
 
 import Layout from '../layouts/Layout.astro';
-import type { AlbumItem, AlbumData } from '../types/product';
+import { getAlbum } from '../lib/api';
+import type { AlbumItem as ApiAlbumItem } from '../lib/api';
 
-// Fetch album data từ API
-let albumItems: AlbumItem[] = [];
+let albumItems: ApiAlbumItem[] = [];
 let error: string | null = null;
 
 try {
-  const apiUrl = 'https://cdn.gaolamthuy.vn/homepage/album_website.json';
-  const response = await fetch(apiUrl);
-  
-  if (response.ok) {
-    const data: AlbumData = await response.json();
-    albumItems = data.album_website || [];
-  } else {
-    error = `Lỗi khi fetch album data: HTTP ${response.status}`;
-  }
+  albumItems = await getAlbum();
 } catch (err) {
   error = err instanceof Error ? err.message : 'Lỗi không xác định khi tải album';
 }
@@ -29,12 +21,11 @@ try {
 /**
  * Format datetime từ rev timestamp (milliseconds)
  */
-function formatDateTime(rev: string | null): string {
+function formatDateTime(rev: number | null): string {
   if (!rev) return 'N/A';
   
   try {
-    const timestamp = parseInt(rev, 10);
-    if (isNaN(timestamp)) return 'N/A';
+    const timestamp = rev;
     
     const date = new Date(timestamp);
     return new Intl.DateTimeFormat('vi-VN', {
