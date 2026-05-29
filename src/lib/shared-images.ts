@@ -1,6 +1,8 @@
 /**
- * Service để fetch và quản lý shared images
- * Độc lập với product images, dễ dàng xóa/nâng cấp sau này
+ * TODO(MIGRATE): File này fetch fallback images từ CDN JSON (products_shared_image.json).
+ * Được dùng bởi ProductDetailIsland.tsx làm fallback gallery khi product không có ảnh.
+ * Khi migrate xong, thay bằng query glt_product_images từ Supabase hoặc xóa luôn nếu không cần.
+ * Liên quan: src/components/ProductDetailIsland.tsx (import getFallbackImages)
  */
 
 export interface SharedImage {
