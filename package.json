@@ -12,9 +12,6 @@
     "astro": "astro",
     "lint": "astro check"
   },
-  "pnpm": {
-    "onlyBuiltDependencies": ["esbuild", "sharp"]
-  },
   "dependencies": {
     "@supabase/supabase-js": "^2.89.0",
     "@tailwindcss/vite": "^4.1.13",
