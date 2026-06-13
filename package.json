@@ -20,10 +20,5 @@
     "photoswipe": "^5.4.4",
     "tailwindcss": "^4.1.13",
     "theme-change": "^2.5.0"
-  },
-  "devDependencies": {
-    "@astrojs/react": "5.0.6",
-    "react": "^19.2.1",
-    "react-dom": "^19.2.1"
   }
 }

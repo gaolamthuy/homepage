@@ -1,73 +1,54 @@
 ---
-/**
- * PhotoSwipe Gallery Component
- * Hiển thị gallery bảng giá với PhotoSwipe
- */
+import { getAlbum } from '../lib/api';
 
-import type { AlbumItem, AlbumData } from '../types/product';
-
-// Re-export types để sử dụng trong script
-export type { AlbumItem, AlbumData };
-
-/**
- * Fetch album data từ API sử dụng environment variable
- * Dữ liệu này sẽ được serialize và truyền vào client-side script
- */
-let albumData: AlbumItem[] = [];
+let albumData: Awaited<ReturnType<typeof getAlbum>> = [];
 try {
-  const baseUrl = import.meta.env.PUBLIC_API_URL;
-  if (!baseUrl || baseUrl.trim() === '') {
-    console.warn('PUBLIC_API_URL không được cấu hình, album gallery sẽ không hoạt động');
-  } else {
-    // Đảm bảo baseUrl không có trailing slash
-    const cleanBaseUrl = baseUrl.replace(/\/$/, '');
-    const apiUrl = `${cleanBaseUrl}/album_website.json`;
-    const response = await fetch(apiUrl);
-    if (response.ok) {
-      const data: AlbumData = await response.json();
-      albumData = data.album_website || [];
-    } else {
-      console.error(`HTTP error! status: ${response.status} khi fetch ${apiUrl}`);
-    }
-  }
+  albumData = await getAlbum();
 } catch (error) {
   console.error('Error fetching album data:', error);
-  if (error instanceof TypeError && error.message.includes('Failed to parse URL')) {
-    console.error('URL không hợp lệ. Vui lòng kiểm tra PUBLIC_API_URL trong .env.local');
-  }
 }
+
+const clientAlbumData = albumData.map((item) => ({
+  title: item.title_public || item.title,
+  imageUrl: item.public_url_with_rev || item.r2_dev_url || '',
+}));
 ---
 
-<!-- PhotoSwipe Gallery Container -->
-<div id="photoswipe-gallery" class="hidden">
-  <!-- Gallery items sẽ được render bởi JavaScript -->
-</div>
+<div id="photoswipe-gallery" class="hidden"></div>
 
-<!-- Hidden data elements để truyền dữ liệu từ server -->
-<script define:vars={{ serverAlbumData: albumData, apiBaseUrl: import.meta.env.PUBLIC_API_URL }} is:inline>
-  // Tạo hidden elements để truyền dữ liệu
+<script define:vars={{ serverAlbumData: clientAlbumData }} is:inline>
   window.__ALBUM_DATA__ = serverAlbumData || [];
-  window.__API_BASE_URL__ = apiBaseUrl || '';
 </script>
 
-<!-- PhotoSwipe Gallery Script -->
 <script>
   import PhotoSwipe from 'photoswipe';
   import PhotoSwipeLightbox from 'photoswipe/lightbox';
   import 'photoswipe/style.css';
 
-  // Album data và base URL
-  let albumData = window.__ALBUM_DATA__ || [];
-  let baseUrl = window.__API_BASE_URL__ || '';
-  let lightbox = null;
+  interface AlbumEntry {
+    title: string;
+    imageUrl: string;
+  }
 
-  /**
-   * Khởi tạo PhotoSwipe Lightbox
-   */
-  function initPhotoSwipe() {
-    if (lightbox) {
-      return; // Đã được khởi tạo rồi
+  interface GalleryItem {
+    src: string;
+    width: number;
+    height: number;
+    alt: string;
+    title: string;
+  }
+
+  declare global {
+    interface Window {
+      __ALBUM_DATA__?: AlbumEntry[];
     }
+  }
+
+  const albumData: AlbumEntry[] = window.__ALBUM_DATA__ || [];
+  let lightbox: PhotoSwipeLightbox | null = null;
+
+  function initPhotoSwipe() {
+    if (lightbox) return;
 
     try {
       lightbox = new PhotoSwipeLightbox({
@@ -78,13 +59,12 @@ try {
         pswpModule: PhotoSwipe
       });
 
-      // Cấu hình PhotoSwipe
       lightbox.on('uiRegister', function() {
         if (lightbox?.pswp && lightbox.pswp.ui) {
           lightbox.pswp.ui.registerElement({
             name: 'custom-caption',
-            onInit: (el, pswp) => {
-              el.innerHTML = '<div class="pswp__caption"><div class="pswp__caption__center"></div></div>';
+            onInit: (_el: HTMLElement, _pswp: PhotoSwipe) => {
+              _el.innerHTML = '<div class="pswp__caption"><div class="pswp__caption__center"></div></div>';
             }
           });
         }
@@ -94,44 +74,7 @@ try {
     }
   }
 
-  /**
-   * Fetch album data từ API
-   */
-  async function fetchAlbumData() {
-    try {
-      if (!baseUrl || baseUrl.trim() === '') {
-        console.warn('PUBLIC_API_URL không được cấu hình, album gallery sẽ không hoạt động');
-        return [];
-      }
-      
-      const cleanBaseUrl = baseUrl.replace(/\/$/, '');
-      const apiUrl = `${cleanBaseUrl}/album_website.json`;
-      const response = await fetch(apiUrl);
-      
-      if (!response.ok) {
-        console.error(`HTTP error! status: ${response.status} khi fetch ${apiUrl}`);
-        return [];
-      }
-      
-      const data = await response.json();
-      return data.album_website || [];
-    } catch (error) {
-      console.error('Error fetching album data:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Lấy URL ảnh từ album item
-   */
-  function getImageUrl(item) {
-    return item.public_url_with_rev || item.r2_dev_url || '';
-  }
-
-  /**
-   * Load kích thước ảnh từ URL
-   */
-  function loadImageSize(url) {
+  function loadImageSize(url: string): Promise<{ width: number; height: number }> {
     return new Promise((resolve) => {
       const img = new Image();
       img.onload = () => {
@@ -144,11 +87,7 @@ try {
     });
   }
 
-  /**
-   * Mở PhotoSwipe gallery với dữ liệu album
-   */
   async function openGallery() {
-    // Đảm bảo PhotoSwipe đã được khởi tạo
     if (!lightbox) {
       initPhotoSwipe();
       if (!lightbox) {
@@ -157,88 +96,58 @@ try {
       }
     }
 
-    // Fetch album data nếu chưa có
     if (albumData.length === 0) {
-      albumData = await fetchAlbumData();
-    }
-
-    if (albumData.length === 0) {
-      console.error('No album data available');
-      alert('Không có dữ liệu album. Vui lòng thử lại sau.');
+      alert('Không có dữ liệu album.');
       return;
     }
 
-    // Tạo gallery items với URL đúng từ API
-    const galleryItemsPromises = albumData.map(async (item) => {
-      const imageUrl = getImageUrl(item);
-      if (!imageUrl) {
-        console.warn(`Không tìm thấy URL cho item: ${item.title}`);
-        return null;
-      }
-
-      const { width, height } = await loadImageSize(imageUrl);
-
+    const galleryItemsPromises: Promise<GalleryItem | null>[] = albumData.map(async (item: AlbumEntry) => {
+      if (!item.imageUrl) return null;
+      const { width, height } = await loadImageSize(item.imageUrl);
       return {
-        src: imageUrl,
-        width: width,
-        height: height,
+        src: item.imageUrl,
+        width,
+        height,
         alt: item.title || 'Bảng giá',
         title: item.title || 'Bảng giá'
       };
     });
 
-    const galleryItems = (await Promise.all(galleryItemsPromises)).filter(item => item !== null);
+    const galleryItems = (await Promise.all(galleryItemsPromises)).filter((item): item is GalleryItem => item !== null);
 
     if (galleryItems.length === 0) {
-      console.error('No valid gallery items');
       alert('Không có ảnh nào để hiển thị.');
       return;
     }
 
-    // Tạo HTML cho gallery
-    const galleryHTML = galleryItems.map((item) => 
+    const galleryHTML = galleryItems.map((item: GalleryItem) =>
       `<a href="${item.src}" data-pswp-width="${item.width}" data-pswp-height="${item.height}" data-pswp-srcset="${item.src} ${item.width}w" target="_blank">
         <img src="${item.src}" alt="${item.alt}" style="display: none;" />
       </a>`
     ).join('');
 
-    // Render gallery
     const galleryContainer = document.getElementById('photoswipe-gallery');
     if (galleryContainer && lightbox) {
       galleryContainer.innerHTML = galleryHTML;
       galleryContainer.classList.remove('hidden');
-      
-      // Mở gallery từ item đầu tiên
       lightbox.loadAndOpen(0, galleryItems);
     }
   }
 
-  /**
-   * Khởi tạo gallery
-   */
-  function initPriceGallery() {
-    // Khởi tạo PhotoSwipe
+  function init() {
     initPhotoSwipe();
-    
-    // Hàm setup event listener
-    function setupGalleryButton() {
-      const galleryButton = document.querySelector('[data-gallery-trigger]');
-      if (galleryButton) {
-        galleryButton.addEventListener('click', function(e) {
-          e.preventDefault();
-          openGallery();
-        });
-      }
-    }
-    
-    // Xử lý sự kiện click vào nút gallery
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', setupGalleryButton);
-    } else {
-      setupGalleryButton();
+    const galleryButton = document.querySelector('[data-gallery-trigger]');
+    if (galleryButton) {
+      galleryButton.addEventListener('click', function(e: Event) {
+        e.preventDefault();
+        openGallery();
+      });
     }
   }
 
-  // Khởi tạo gallery khi script load
-  initPriceGallery();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 </script>

@@ -6,6 +6,7 @@ export interface CategoryItem {
   category_name: string;
   rank: number;
   glt_color_border: string;
+  homepage_item_count?: number | null;
 }
 
 export interface AlbumItem {
@@ -49,6 +50,7 @@ interface ViewProduct {
   glt_images: Array<{
     id: number;
     url: string;
+    thumbnail_url: string | null;
     role: string;
     image_type: string;
     is_thumbnail: boolean;
@@ -63,11 +65,13 @@ interface ViewProduct {
     unit: string;
     base_price: number;
     conversion_value: number;
+    price_per_master_unit: number | null;
     glt_slug: string | null;
     is_active: boolean;
     images: Array<{
       id: number;
       url: string;
+      thumbnail_url: string | null;
       role: string;
       image_type: string;
       is_thumbnail: boolean;
@@ -85,13 +89,7 @@ function transformProduct(row: ViewProduct): Product {
         full_name: firstChild.full_name,
         base_price: Number(firstChild.base_price),
         conversion_value: firstChild.conversion_value,
-        price_per_master_unit:
-          firstChild.conversion_value > 0
-            ? Math.round(
-                (Number(firstChild.base_price) / firstChild.conversion_value) *
-                  1000
-              ) / 1000
-            : undefined,
+        price_per_master_unit: firstChild.price_per_master_unit ?? undefined,
       }
     : undefined;
 
@@ -124,9 +122,12 @@ function transformProduct(row: ViewProduct): Product {
     glt_images: (row.glt_images || []).map((img) => ({
       id: img.id,
       url: img.url,
+      thumbnail_url: img.thumbnail_url,
       role: img.role,
-      created_at: '',
-      updated_at: null,
+      image_type: img.image_type,
+      is_thumbnail: img.is_thumbnail,
+      width: img.width,
+      height: img.height,
     })),
     child_unit,
     child_product: (row.child_products || []).map((cp) => ({
@@ -138,6 +139,8 @@ function transformProduct(row: ViewProduct): Product {
       glt_slug: cp.glt_slug,
       is_active: cp.is_active,
       base_price: Number(cp.base_price),
+      price_per_master_unit: cp.price_per_master_unit ?? undefined,
+      conversion_value: cp.conversion_value,
       child_unit: undefined as any,
       category_id: row.category_id,
       kiotviet_id: cp.kiotviet_id,
@@ -149,9 +152,12 @@ function transformProduct(row: ViewProduct): Product {
       glt_images: (cp.images || []).map((img) => ({
         id: img.id,
         url: img.url,
+        thumbnail_url: img.thumbnail_url,
         role: img.role,
-        created_at: '',
-        updated_at: null,
+        image_type: img.image_type,
+        is_thumbnail: img.is_thumbnail,
+        width: img.width,
+        height: img.height,
       })),
     })),
   };
@@ -160,10 +166,10 @@ function transformProduct(row: ViewProduct): Product {
 export async function getProducts(): Promise<{ products_data: Product[] }> {
   const supabase = createSupabaseClient();
   const { data, error } = await supabase
-    .from('v_homepage_products')
+    .from('v_products_homepage')
     .select('*');
   if (error) {
-    throw new Error(`Supabase query v_homepage_products failed: ${error.message}`);
+    throw new Error(`Supabase query v_products_homepage failed: ${error.message}`);
   }
   return { products_data: (data || []).map(transformProduct) };
 }

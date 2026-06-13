@@ -1,14 +1,12 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
-import react from "@astrojs/react";
-
 export default defineConfig({
-  output: 'static', // Static site generation - tất cả trang sẽ được pre-render
+  output: 'static',
   vite: {
     plugins: [tailwindcss()],
     build: {
-      cssCodeSplit: false, // Đảm bảo CSS được bundle đúng cách
+      cssCodeSplit: false,
     },
     server: {
       allowedHosts: [
@@ -16,5 +14,4 @@ export default defineConfig({
       ],
     },
   },
-  integrations: [react()],
 });
