@@ -10,7 +10,7 @@ try {
 
 const clientAlbumData = albumData.map((item) => ({
   title: item.title_public || item.title,
-  imageUrl: item.public_url_with_rev || item.r2_dev_url || '',
+  imageUrl: item.public_url || '',
 }));
 ---
 

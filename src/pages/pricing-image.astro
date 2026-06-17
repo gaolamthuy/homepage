@@ -81,7 +81,7 @@ function getTypeLabel(type: string): string {
     ) : (
       <div class="carousel w-full rounded-box">
         {albumItems.map((item, index) => {
-          const imageUrl = item.public_url_with_rev || item.r2_dev_url || '';
+          const imageUrl = item.public_url || '';
           const displayTitle = item.title_public || item.title;
           const itemId = `slide${index + 1}`;
           

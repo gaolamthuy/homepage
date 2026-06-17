@@ -1,0 +1,183 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getSocialImages } from '../lib/api';
+import type { SocialImageItem } from '../lib/api';
+
+let images: SocialImageItem[] = [];
+let error: string | null = null;
+
+try {
+  images = await getSocialImages();
+} catch (err) {
+  error = err instanceof Error ? err.message : 'Lỗi không xác định khi tải album';
+}
+
+const TYPE_LABELS: Record<string, string> = {
+  'pricetable-retail': 'Bảng giá lẻ',
+  'pricetable-whole': 'Bảng giá 200kg',
+  'pricetable-utdao': 'Bảng giá 500kg',
+  'misc': 'Khác',
+};
+
+const typeOrder = ['pricetable-retail', 'pricetable-whole', 'pricetable-utdao', 'misc'];
+
+const typesPresent = typeOrder.filter((t) => images.some((i) => i.type === t));
+
+const grouped = typesPresent.map((type) => ({
+  type,
+  label: TYPE_LABELS[type] || type,
+  items: images.filter((i) => i.type === type),
+}));
+---
+
+<Layout
+  title="Album ảnh - Gạo Lâm Thúy"
+  description="Xem bảng giá và hình ảnh sản phẩm Gạo Lâm Thúy - pinch zoom, vuốt chuyển ảnh"
+>
+  <main class="container mx-auto px-3 py-4 sm:px-4 sm:py-6 max-w-5xl">
+    <h1 class="text-2xl sm:text-3xl font-bold text-center mb-1">Album Ảnh</h1>
+    <p class="text-center text-sm text-base-content/60 mb-4">
+      Chạm vào ảnh để xem toàn màn hình • Vuốt để chuyển • Chụm để zoom
+    </p>
+
+    {error ? (
+      <div class="alert alert-error mb-6">
+        <span>{error}</span>
+      </div>
+    ) : images.length === 0 ? (
+      <div class="alert alert-info mb-6">
+        <span>Chưa có ảnh nào trong album</span>
+      </div>
+    ) : (
+      <>
+        {grouped.length > 1 && (
+          <div class="sticky top-0 z-20 bg-base-100/90 backdrop-blur py-2 mb-4 -mx-3 px-3 sm:mx-0 sm:px-0">
+            <div class="flex gap-2 overflow-x-auto scrollbar-none pb-1">
+              <button class="btn btn-sm filter-btn btn-active" data-filter="all">Tất cả</button>
+              {grouped.map((g) => (
+                <button class="btn btn-sm filter-btn" data-filter={g.type}>{g.label}</button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div
+          id="social-album-gallery"
+          class="columns-2 md:columns-3 lg:columns-4 gap-2 [&>*]:mb-2"
+        >
+          {images.map((item) => {
+            const url = item.public_url || '';
+            const title = item.title_public || item.title;
+            return (
+              <a
+                href={url}
+                data-pswp-width={1080}
+                data-pswp-height={1440}
+                data-type={item.type}
+                target="_blank"
+                rel="noopener"
+                class="group relative block break-inside-avoid overflow-hidden rounded-lg bg-base-200 cursor-pointer"
+              >
+                <img
+                  src={url}
+                  alt={title}
+                  loading="lazy"
+                  decoding="async"
+                  class="w-full h-auto object-cover transition-transform duration-300 group-active:scale-95"
+                />
+                <span class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 py-1.5 text-[11px] text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                  {title}
+                </span>
+              </a>
+            );
+          })}
+        </div>
+      </>
+    )}
+  </main>
+</Layout>
+
+<style>
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  /* No layout shift: reserve aspect ratio box via aspect utility not used
+     because images have varying aspect ratios (masonry). Break-inside-avoid handles flow. */
+</style>
+
+<script>
+  import PhotoSwipe from 'photoswipe';
+  import PhotoSwipeLightbox from 'photoswipe/lightbox';
+  import 'photoswipe/style.css';
+
+  const lightbox = new PhotoSwipeLightbox({
+    gallery: '#social-album-gallery',
+    children: 'a',
+    showHideOpacity: true,
+    bgOpacity: 0.85,
+    pswpModule: PhotoSwipe,
+    initialZoomLevel: 'fit',
+    secondaryZoomLevel: 2,
+    maxZoomLevel: 4,
+    close: true,
+    zoom: true,
+  });
+
+  lightbox.on('uiRegister', () => {
+    if (!lightbox.pswp) return;
+    lightbox.pswp.ui.registerElement({
+      name: 'caption',
+      order: 9,
+      isButton: false,
+      appendTo: 'root',
+      onInit: (el: HTMLElement, pswp: PhotoSwipe) => {
+        const caption = document.createElement('div');
+        caption.className = 'pswp-caption-bar';
+        el.appendChild(caption);
+        pswp.on('change', () => {
+          const slideData = pswp.currSlide?.data;
+          const img = slideData?.element?.querySelector('img') as HTMLImageElement | null;
+          caption.textContent = img?.alt || '';
+        });
+      },
+    });
+  });
+
+  lightbox.init();
+
+  // Filter logic — hide non-matching items from the gallery & lightbox
+  const filterBtns = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
+  const gallery = document.getElementById('social-album-gallery');
+  if (filterBtns.length && gallery) {
+    filterBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const filter = btn.dataset.filter;
+        filterBtns.forEach((b) => b.classList.remove('btn-active'));
+        btn.classList.add('btn-active');
+        gallery.querySelectorAll<HTMLAnchorElement>('a[data-type]').forEach((a) => {
+          const show = filter === 'all' || a.dataset.type === filter;
+          a.style.display = show ? '' : 'none';
+        });
+      });
+    });
+  }
+</script>
+
+<style is:global>
+  .pswp-caption-bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    color: #fff;
+    font-size: 14px;
+    text-align: center;
+    pointer-events: none;
+  }
+</style>

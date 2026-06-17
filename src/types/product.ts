@@ -104,20 +104,20 @@ export interface LayoutProps {
 }
 
 /**
- * Interface định nghĩa cấu trúc dữ liệu album item từ API
- * Khớp với cấu trúc từ album_website.json
+ * Interface định nghĩa cấu trúc dữ liệu album item từ Supabase view
  */
 export interface AlbumItem {
-  id: string;
+  id: number;
   title: string;
+  title_public: string | null;
   type: string;
   path: string;
-  rev: string | null;
-  updated_at: string | null;
+  rev: number | null;
+  rank: number;
+  facebook_post_is_selected: boolean;
+  public_url: string | null;
   created_at: string;
-  public_url_with_rev: string;
-  r2_dev_url: string;
-  title_public?: string;
+  updated_at: string | null;
 }
 
 /**

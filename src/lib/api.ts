@@ -18,8 +18,7 @@ export interface AlbumItem {
   rev: number | null;
   rank: number;
   facebook_post_is_selected: boolean;
-  public_url_with_rev: string | null;
-  r2_dev_url: string | null;
+  public_url: string | null;
   created_at: string;
   updated_at: string | null;
 }
@@ -200,4 +199,31 @@ export async function getAlbum(): Promise<AlbumItem[]> {
     );
   }
   return (data || []) as AlbumItem[];
+}
+
+export interface SocialImageItem {
+  id: number;
+  title: string;
+  title_public: string | null;
+  type: string;
+  path: string;
+  rev: number | null;
+  rank: number;
+  facebook_post_is_selected: boolean;
+  public_url: string | null;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export async function getSocialImages(): Promise<SocialImageItem[]> {
+  const supabase = createSupabaseClient();
+  const { data, error } = await supabase
+    .from('v_social_images_homepage')
+    .select('*');
+  if (error) {
+    throw new Error(
+      `Supabase query v_social_images_homepage failed: ${error.message}`
+    );
+  }
+  return (data || []) as SocialImageItem[];
 }
