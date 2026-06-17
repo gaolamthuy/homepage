@@ -1,6 +1,6 @@
 ---
 import type { Product, ProductCardProps } from '../types/product';
-import { formatPrice, getProductImage } from '../lib/utils';
+import { formatVnd, getProductImage } from '../lib/utils';
 
 export interface Props extends ProductCardProps {
   showPromotionBadge?: boolean;
@@ -32,9 +32,7 @@ function hasPromotion(product: Product): boolean {
         {showPromotionBadge && hasPromotion(product) && (
           <div class="badge badge-primary badge-soft badge-sm">Khuyến mãi</div>
         )}
-        {product.child_product && product.child_product.length > 0 && (
-          <div class="badge badge-primary badge-soft badge-sm">Nhiều loại</div>
-        )}
+        {product.child_product && product.child_product.length > 0 && null}
       </div>
     </figure>
 
@@ -52,7 +50,7 @@ function hasPromotion(product: Product): boolean {
       <div class="flex items-center justify-between mt-2">
         <div class="flex items-center gap-2">
           <span class="text-2xl font-bold text-primary bg-primary/10 px-2 py-1 rounded-lg">
-            {formatPrice(product.base_price)}
+            {formatVnd(product.base_price)}
           </span>
         </div>
       </div>
@@ -71,9 +69,7 @@ function hasPromotion(product: Product): boolean {
         {showPromotionBadge && hasPromotion(product) && (
           <div class="badge badge-primary badge-soft badge-sm">Khuyến mãi</div>
         )}
-        {product.child_product && product.child_product.length > 0 && (
-          <div class="badge badge-primary badge-soft badge-sm">Nhiều loại</div>
-        )}
+        {product.child_product && product.child_product.length > 0 && null}
       </div>
     </figure>
 
@@ -91,7 +87,7 @@ function hasPromotion(product: Product): boolean {
       <div class="flex items-center justify-between mt-2">
         <div class="flex items-center gap-2">
           <span class="text-2xl font-bold text-primary bg-primary/10 px-2 py-1 rounded-lg">
-            {formatPrice(product.base_price)}
+            {formatVnd(product.base_price)}
           </span>
         </div>
       </div>

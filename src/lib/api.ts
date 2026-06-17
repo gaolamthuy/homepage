@@ -1,6 +1,14 @@
 import { createSupabaseClient } from './supabase';
 import type { Product } from '../types/product';
 
+export interface PriceHistoryEntry {
+  old: number;
+  new: number;
+  diff: number;
+  dir: 'up' | 'down' | null;
+  at: string;
+}
+
 export interface CategoryItem {
   category_id: number;
   category_name: string;
@@ -77,7 +85,9 @@ interface ViewProduct {
       width: number | null;
       height: number | null;
     }>;
+    price_history: PriceHistoryEntry[] | null;
   }> | null;
+  price_history: PriceHistoryEntry[] | null;
 }
 
 function transformProduct(row: ViewProduct): Product {
@@ -89,6 +99,7 @@ function transformProduct(row: ViewProduct): Product {
         base_price: Number(firstChild.base_price),
         conversion_value: firstChild.conversion_value,
         price_per_master_unit: firstChild.price_per_master_unit ?? undefined,
+        price_history: firstChild.price_history ?? undefined,
       }
     : undefined;
 
@@ -117,6 +128,7 @@ function transformProduct(row: ViewProduct): Product {
     glt_kiotvietshop_url: row.glt_kiotvietshop_url,
     glt_shopee_url: row.glt_shopee_url,
     glt_slug: row.glt_slug,
+    description: row.description ?? undefined,
     pricebooks: pricebooks as any,
     glt_images: (row.glt_images || []).map((img) => ({
       id: img.id,
@@ -158,7 +170,9 @@ function transformProduct(row: ViewProduct): Product {
         width: img.width,
         height: img.height,
       })),
+      price_history: cp.price_history ?? undefined,
     })),
+    price_history: row.price_history ?? undefined,
   };
 }
 

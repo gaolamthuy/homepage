@@ -22,6 +22,7 @@ export interface Product {
   glt_kiotvietshop_url: string | null;
   glt_shopee_url: string | null;
   glt_slug: string | null;
+  description?: string | null;
   pricebooks?: {
     utdao: number | null;
     whole: number | null;
@@ -42,6 +43,7 @@ export interface Product {
     base_price: number;
     conversion_value: number;
     price_per_master_unit?: number;
+    price_history?: PriceHistoryEntry[];
   };
   child_product?: Array<{
     id: string;
@@ -78,7 +80,17 @@ export interface Product {
     order_template: string | null;
     glt_kiotvietshop_url: string | null;
     glt_retail_promotion: boolean;
+    price_history?: PriceHistoryEntry[];
   }>;
+  price_history?: PriceHistoryEntry[];
+}
+
+export interface PriceHistoryEntry {
+  old: number;
+  new: number;
+  diff: number;
+  dir: 'up' | 'down' | null;
+  at: string;
 }
 
 /**

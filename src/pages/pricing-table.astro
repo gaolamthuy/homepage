@@ -42,6 +42,15 @@ const fromProducts = [...new Set(products.map((p) => p.category_name))];
 // Merge và dedupe: ưu tiên rankedNames, bổ sung fromProducts
 const categories = [...new Set([...rankedNames, ...fromProducts])];
 
+// === GROUP PRODUCTS BY CATEGORY ===
+// Nhóm sản phẩm theo danh mục để hiển thị header phân nhóm
+const groupedProducts = categories
+  .map((category) => ({
+    category,
+    items: products.filter((p) => p.category_name === category),
+  }))
+  .filter((g) => g.items.length > 0);
+
 // === UTILITY FUNCTIONS ===
 
 /**
@@ -57,7 +66,7 @@ function formatPrice(price: number): string {
   title="Bảng giá - Gạo Lâm Thúy"
   description="Xem bảng giá chi tiết các sản phẩm gạo chất lượng cao từ Gạo Lâm Thúy"
 >
-  <div class="container mx-auto px-4 py-8 max-w-7xl">
+  <div class="container mx-auto px-4 py-8 max-w-5xl">
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-base-content mb-2">Bảng giá sản phẩm</h1>
       <p class="text-base-content/70">
@@ -174,162 +183,105 @@ function formatPrice(price: number): string {
 
     <!-- Mobile tip -->
     <div class="block md:hidden mb-4 no-print">
-      <div class="alert alert-info">
-        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <p class="text-xs text-base-content/40 text-center flex items-center justify-center gap-1">
+        <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
         </svg>
-        <span class="text-sm">
-          💡 <strong>Mẹo:</strong> Vuốt sang trái/phải để xem đầy đủ bảng giá
-        </span>
-      </div>
+        Vuốt ngang để xem thêm
+      </p>
     </div>
 
     <div class="overflow-x-auto rounded-lg border border-base-300 bg-base-100">
-      <table class="table table-zebra w-full min-w-[600px]">
+      <table class="table table-zebra table-sm w-full min-w-[540px]">
         <thead>
           <tr class="bg-base-200">
-            <th class="text-left w-60">Tên sản phẩm</th>
-            <th class="text-left w-15">Danh mục</th>
-            <th class="text-left w-24">Đơn vị</th>
-            <th class="text-right w-32" id="pricing-pricebook-header">Giá niêm yết</th>
-            <th class="text-right w-28">Quy đổi / kg</th>
+            <th class="text-left w-56">Tên sản phẩm</th>
+            <th class="text-right w-28" id="pricing-pricebook-header">Giá niêm yết</th>
+            <th class="text-right w-32">Đơn vị con</th>
           </tr>
         </thead>
         <tbody>
-          {products.map((product) => {
-            const hasChild = product.child_unit;
-            return (
-              <>
-                {/* 
-                  MAIN UNIT ROW
-                  - Hiển thị thông tin chính của sản phẩm
-                  - Sử dụng rowspan khi có child_unit (chế độ "Giá niêm yết")
-                  - js-rowspan-cell: để điều khiển rowspan động
-                  - js-pricebook-cell: để cập nhật giá theo pricebook
-                */}
-                <tr class="hover" data-category={product.category_name}>
-                  {hasChild ? (
-                    <>
-                      {/* Tên sản phẩm - rowspan=2 khi có child_unit */}
-                      <td class="font-medium" rowspan="2">
-                        <div class="break-words">
-                          {/* Tên sản phẩm (có link nếu có glt_slug) */}
-                          {product.glt_slug ? (
-                            <a
-                              href={`/products/${product.glt_slug}`}
-                              class="link link-primary link-hover break-words"
-                            >
-                              {product.name}
-                            </a>
-                          ) : (
-                            <span class="break-words">{product.name}</span>
-                          )}
-                          {/* Sub-text: order_template (thông tin vụ mùa, chất lượng) */}
-                          {product.order_template && (
-                            <div class="text-xs text-base-content/60 mt-1 break-words">
-                              {product.order_template}
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      {/* Danh mục - rowspan=2 khi có child_unit */}
-                      <td rowspan="2">
-                        <span class="badge badge-ghost badge-sm whitespace-nowrap">
-                          {product.category_name}
-                        </span>
-                      </td>
-                    </>
-                  ) : (
-                    <>
-                      {/* Tên sản phẩm - không rowspan khi không có child_unit */}
-                      <td class="font-medium">
-                        <div class="break-words">
-                          {product.glt_slug ? (
-                            <a
-                              href={`/products/${product.glt_slug}`}
-                              class="link link-primary link-hover break-words"
-                            >
-                              {product.name}
-                            </a>
-                          ) : (
-                            <span class="break-words">{product.name}</span>
-                          )}
-                          {product.order_template && (
-                            <div class="text-xs text-base-content/60 mt-1 break-words">
-                              {product.order_template}
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      {/* Danh mục - không rowspan */}
-                      <td>
-                        <span class="badge badge-ghost badge-sm whitespace-nowrap">
-                          {product.category_name}
-                        </span>
-                      </td>
-                    </>
-                  )}
-                  
-                  {/* Đơn vị main unit */}
-                  <td class="whitespace-nowrap w-24">{product.unit}</td>
-                  
-                  {/* 
-                    GIÁ MAIN UNIT - Cột động
-                    - Mặc định: hiển thị base_price
-                    - JavaScript sẽ thay đổi theo pricebook được chọn
-                    - data-*: chứa tất cả giá trị để JavaScript xử lý
-                  */}
-                  <td
-                    class="text-right font-semibold text-primary tabular-nums js-pricebook-cell w-32"
-                    data-base-price={product.base_price}
-                    data-utdao={product.pricebooks?.utdao?.price ?? ''}
-                    data-whole={product.pricebooks?.whole?.price ?? ''}
-                    data-type="base"
-                  >
-                    {formatPrice(product.base_price)}
-                  </td>
-                  
-                  {/* Quy đổi/kg - chỉ có ý nghĩa với child_unit - placeholder khi chọn pricebook */}
-                  <td class="text-right tabular-nums text-base-content/50 js-conversion-cell w-28">—</td>
-                </tr>
+          {groupedProducts.map((group) => (
+            <>
+              {/* CATEGORY GROUP HEADER */}
+              <tr class="js-group-header" data-group-category={group.category}>
+                <td colspan="3" class="bg-primary/10 border-y border-primary/20 px-4 py-2">
+                  <span class="font-bold text-primary text-sm uppercase tracking-wide">
+                    {group.category}
+                  </span>
+                  <span class="text-xs text-base-content/50 ml-2">({group.items.length} sản phẩm)</span>
+                </td>
+              </tr>
+              {group.items.map((product) => {
+                const hasChild = product.child_unit;
+                const child = product.child_unit;
+                const conversionTip =
+                  child && child.price_per_master_unit != null
+                    ? `Quy đổi: ${formatPrice(child.price_per_master_unit)}đ/kg`
+                    : '';
+                const childUnitLabel = child ? `/${child.unit}` : '';
 
-                {/* 
-                  CHILD UNIT ROW (nếu có)
-                  - Luôn hiển thị, không ẩn/hiện
-                  - Chỉ thay đổi nội dung giá: base_price hoặc "-"
-                */}
-                {hasChild && (
+                return (
                   <tr class="hover" data-category={product.category_name}>
-                    {/* Đơn vị child_unit */}
-                    <td class="whitespace-nowrap w-24">{product.child_unit.unit}</td>
-                    
-                    {/* 
-                      GIÁ CHILD UNIT
-                      - base_price: hiển thị child_unit.base_price
-                      - pricebook: hiển thị "-" (không tính giá)
-                    */}
+                    {/* Tên sản phẩm (full_name đã gồm master unit) */}
+                    <td class="font-medium">
+                      <div class="break-words flex items-center gap-1.5 flex-wrap">
+                        {product.glt_slug ? (
+                          <a
+                            href={`/products/${product.glt_slug}`}
+                            class="link link-primary link-hover break-words"
+                          >
+                            {product.full_name}
+                          </a>
+                        ) : (
+                          <span class="break-words">{product.full_name}</span>
+                        )}
+                        {product.glt_retail_promotion && (
+                          <span class="badge badge-success badge-outline badge-xs">KM</span>
+                        )}
+                        {product.order_template && (
+                          <div class="text-xs text-base-content/60 w-full break-words">
+                            {product.order_template}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+
+                    {/* GIÁ MASTER - cột động */}
                     <td
-                      class="text-right font-semibold text-primary tabular-nums js-pricebook-cell w-32"
-                      data-base-price={product.child_unit.base_price}
+                      class="text-right font-semibold text-primary tabular-nums js-pricebook-cell w-28"
+                      data-base-price={product.base_price}
                       data-utdao={product.pricebooks?.utdao?.price ?? ''}
                       data-whole={product.pricebooks?.whole?.price ?? ''}
-                      data-conversion={product.child_unit.conversion_value || 50}
+                      data-type="base"
+                    >
+                      {formatPrice(product.base_price)}
+                    </td>
+
+                    {/* ĐƠN VỊ CON - giá + tooltip quy đổi */}
+                    <td
+                      class="text-right tabular-nums js-pricebook-cell w-32"
+                      data-base-price={child?.base_price ?? ''}
+                      data-utdao={product.pricebooks?.utdao?.price ?? ''}
+                      data-whole={product.pricebooks?.whole?.price ?? ''}
+                      data-conversion-tip={conversionTip}
+                      data-unit-label={childUnitLabel}
                       data-type="child"
                     >
-                      {formatPrice(product.child_unit.base_price)}
-                    </td>
-                    
-                    {/* Quy đổi/kg - price_per_master_unit - placeholder khi chọn pricebook */}
-                    <td class="text-right tabular-nums text-base-content/90 js-conversion-cell w-28">
-                      {product.child_unit.price_per_master_unit != null
-                        ? formatPrice(product.child_unit.price_per_master_unit)
-                        : '—'}
+                      {hasChild ? (
+                        <div class="tooltip tooltip-left" data-tip={conversionTip}>
+                          <span class="font-medium">{formatPrice(child!.base_price)}</span>
+                          <span class="text-xs text-base-content/50">{childUnitLabel}</span>
+                        </div>
+                      ) : (
+                        <span class="text-base-content/30">—</span>
+                      )}
                     </td>
                   </tr>
-                )}
-              </>
-            );
-          })}
+                );
+              })}
+            </>
+          ))}
         </tbody>
       </table>
     </div>
@@ -395,58 +347,52 @@ function formatPrice(price: number): string {
    * @param key - Loại pricebook được chọn
    */
   function applyPricebook(key: 'base_price' | 'utdao' | 'whole') {
-    // 1. Cập nhật header cột giá
+    // 1. Cập nhật header cột giá chính
     const header = document.getElementById('pricing-pricebook-header');
     if (header) {
-      if (key === 'base_price') {
-        header.textContent = 'Giá niêm yết';
-      } else if (key === 'utdao') {
-        header.textContent = 'Bảng giá 500kg';
-      } else {
-        header.textContent = 'Bảng giá 200kg';
-      }
+      const labels: Record<string, string> = {
+        base_price: 'Giá niêm yết',
+        utdao: 'Bảng giá 500kg',
+        whole: 'Bảng giá 200kg',
+      };
+      header.textContent = labels[key] || 'Giá';
     }
 
-    // 2. Cập nhật cột "Quy đổi / kg" - hiển thị giá trị hoặc placeholder
-    const showConversionValues = key === 'base_price';
-    document.querySelectorAll<HTMLElement>('.js-conversion-cell').forEach((cell) => {
-      // Bỏ qua header
-      if (cell.tagName === 'TH') return;
-      
-      if (showConversionValues) {
-        // Khôi phục giá trị gốc từ data attribute hoặc text content ban đầu
-        const originalValue = cell.dataset.originalValue;
-        if (originalValue) {
-          cell.textContent = originalValue;
-        }
-      } else {
-        // Lưu giá trị gốc và hiển thị placeholder
-        if (!cell.dataset.originalValue) {
-          cell.dataset.originalValue = cell.textContent || '—';
-        }
-        cell.textContent = '—';
-      }
-    });
-
-    // 3. Cập nhật giá trong các cell
+    // 2. Cập nhật giá trong các cell — chỉ đổi text, giữ structure
     document.querySelectorAll<HTMLElement>('.js-pricebook-cell').forEach((cell) => {
-      const type = cell.dataset.type || 'base'; // 'base' hoặc 'child'
+      const type = cell.dataset.type || 'base';
+      const isChild = type === 'child';
 
-      if (key === 'base_price') {
-        // CHẾ ĐỘ GIÁ NIÊM YẾT: Hiển thị base_price cho tất cả
-        const basePrice = cell.dataset.basePrice;
-        cell.textContent = formatCell(basePrice ?? '');
+      if (isChild && key !== 'base_price') {
+        // Pricebook không áp dụng cho child unit → "—"
+        cell.textContent = '—';
+        return;
+      }
+
+      const raw = key === 'base_price'
+        ? cell.dataset.basePrice
+        : (key === 'utdao' ? cell.dataset.utdao : cell.dataset.whole);
+      const priceText = formatCell(raw ?? '');
+
+      if (!isChild) {
+        // Master: chỉ giá
+        cell.textContent = priceText;
       } else {
-        // CHẾ ĐỘ PRICEBOOK
-        const raw = key === 'utdao' ? cell.dataset.utdao : cell.dataset.whole;
-
-        if (type === 'base') {
-          // Main unit: hiển thị trực tiếp pricebook
-          cell.textContent = formatCell(raw ?? '');
-        } else if (type === 'child') {
-          // Child unit: hiển thị "-" (không tính giá từ pricebook)
-          cell.textContent = '—';
-        }
+        // Child: rebuild giá + unit + tooltip (vì lúc trước có thể đã bị ghi đè bằng "—")
+        const tip = cell.dataset.conversionTip || '';
+        const unitLabel = cell.dataset.unitLabel || '';
+        cell.textContent = '';
+        const wrap = document.createElement('div');
+        wrap.className = 'tooltip tooltip-left';
+        wrap.dataset.tip = tip;
+        const price = document.createElement('span');
+        price.className = 'font-medium';
+        price.textContent = priceText;
+        const unit = document.createElement('span');
+        unit.className = 'text-xs text-base-content/50';
+        unit.textContent = unitLabel;
+        wrap.append(price, unit);
+        cell.appendChild(wrap);
       }
     });
   }
@@ -459,10 +405,16 @@ function formatPrice(price: number): string {
   function applyCategoryFilter(value: string) {
     document.querySelectorAll<HTMLTableRowElement>('tbody tr').forEach((row) => {
       const cat = row.dataset.category ?? '';
+      const groupCat = row.dataset.groupCategory ?? '';
+      // Group header rows: ẩn khi chọn 1 danh mục cụ thể (trùng thì hiện)
+      if (row.classList.contains('js-group-header')) {
+        row.style.display = (!value || groupCat === value) ? '' : 'none';
+        return;
+      }
       if (!value || cat === value) {
-        row.style.display = ''; // Hiển thị
+        row.style.display = '';
       } else {
-        row.style.display = 'none'; // Ẩn
+        row.style.display = 'none';
       }
     });
   }

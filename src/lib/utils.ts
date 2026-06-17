@@ -18,6 +18,12 @@ export function formatPrice(price: number): string {
   return new Intl.NumberFormat('vi-VN').format(price);
 }
 
+const VND = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
+
+export function formatVnd(price: number): string {
+  return VND.format(price);
+}
+
 export function getProductImage(product: Product, useThumbnail = false): string {
   if (product.glt_images && product.glt_images.length > 0) {
     const filtered = product.glt_images.filter((img) =>
