@@ -29,10 +29,10 @@ const categoriesWithCounts = categories.map((c) => ({
   <main class="container mx-auto px-4 py-8 max-w-7xl">
     <h1 class="text-3xl font-bold mb-6">Tất cả sản phẩm</h1>
 
-    <div class="mb-8 flex flex-wrap gap-1 items-center" id="v2-filter-bar">
+    <div class="mb-8 flex md:flex-wrap gap-1 items-center overflow-x-auto md:overflow-visible pb-2 md:pb-0 scrollbar-none whitespace-nowrap md:whitespace-normal" id="v2-filter-bar">
       <button
         type="button"
-        class="btn btn-square btn-md"
+        class="btn btn-square btn-md flex-shrink-0"
         id="v2-filter-reset"
         aria-label="Xóa bộ lọc"
         title="Hiển thị tất cả sản phẩm"
@@ -42,7 +42,7 @@ const categoriesWithCounts = categories.map((c) => ({
       {categoriesWithCounts.map((c) => (
         <button
           type="button"
-          class="btn btn-md btn-category-filter"
+          class="btn btn-md btn-category-filter flex-shrink-0"
           data-category={c.category_name}
         >
           {c.category_name}
@@ -126,3 +126,13 @@ const categoriesWithCounts = categories.map((c) => ({
     init();
   }
 </script>
+
+<style>
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+</style>
