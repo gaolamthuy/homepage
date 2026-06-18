@@ -53,12 +53,15 @@ import Layout from '../layouts/Layout.astro';
             </div>
             <div class="flex flex-col sm:flex-row items-center gap-4">
               <div class="flex-shrink-0">
-                <img
-                  src="/970407-MS00t01926530397960-compact2.png"
-                  alt="VietQR - Quét để chuyển khoản"
-                  class="w-52 h-52 object-contain rounded-lg shadow-sm bg-white p-1"
-                  loading="lazy"
-                />
+                <button type="button" id="qr-trigger" class="block rounded-lg shadow-sm bg-white p-1 cursor-zoom-in transition-transform hover:scale-105" aria-label="Phóng to mã QR">
+                  <img
+                    src="/970407-MS00t01926530397960-compact2.png"
+                    alt="VietQR - Quét để chuyển khoản"
+                    class="w-52 h-52 object-contain"
+                    loading="lazy"
+                  />
+                </button>
+                <p class="text-center text-xs text-base-content/40 mt-1">Chạm để phóng to</p>
               </div>
               <div class="space-y-1 text-base-content/80 text-center sm:text-left">
                 <p><strong>Ngân hàng:</strong> Techcombank</p>
@@ -77,6 +80,34 @@ import Layout from '../layouts/Layout.astro';
         </div>
       </section>
     </div>
+
+    <!-- QR Zoom Modal -->
+    <dialog id="qr-modal" class="modal">
+      <div class="modal-box max-w-fit p-4 bg-base-100">
+        <div class="flex flex-col items-center gap-3">
+          <img
+            src="/970407-MS00t01926530397960-compact2.png"
+            alt="VietQR phóng to"
+            class="w-72 h-72 sm:w-80 sm:h-80 object-contain bg-white p-2 rounded-lg"
+          />
+          <div class="flex gap-2">
+            <button type="button" id="qr-copy-img" class="btn btn-primary btn-sm gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              <span id="qr-copy-label">Sao chép ảnh</span>
+            </button>
+            <a href="/970407-MS00t01926530397960-compact2.png" download="vietqr-gaolamthuy.png" class="btn btn-ghost btn-sm gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Tải xuống
+            </a>
+          </div>
+        </div>
+      </div>
+      <form method="dialog" class="modal-backdrop"><button>close</button></form>
+    </dialog>
   </main>
 </Layout>
 
@@ -102,6 +133,37 @@ import Layout from '../layouts/Layout.astro';
           // no-op
         }
       });
+    });
+
+    // QR zoom modal
+    const qrTrigger = document.getElementById('qr-trigger');
+    const qrModal = document.getElementById('qr-modal') as HTMLDialogElement | null;
+    qrTrigger?.addEventListener('click', () => qrModal?.showModal());
+
+    // Copy QR image to clipboard
+    const copyImgBtn = document.getElementById('qr-copy-img');
+    const copyLabel = document.getElementById('qr-copy-label');
+    copyImgBtn?.addEventListener('click', async () => {
+      const url = '/970407-MS00t01926530397960-compact2.png';
+      const original = copyLabel?.textContent || 'Sao chép ảnh';
+      try {
+        const res = await fetch(url);
+        const blob = await res.blob();
+        if (navigator.clipboard && (window as any).ClipboardItem) {
+          await (navigator.clipboard as any).write([new ClipboardItem({ [blob.type]: blob })]);
+        } else {
+          throw new Error('Clipboard API không hỗ trợ ảnh');
+        }
+        if (copyLabel) copyLabel.textContent = 'Đã chép ✓';
+      } catch (e) {
+        // Fallback: tải ảnh xuống
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'vietqr-gaolamthuy.png';
+        a.click();
+        if (copyLabel) copyLabel.textContent = 'Đã tải xuống';
+      }
+      setTimeout(() => { if (copyLabel) copyLabel.textContent = original; }, 1500);
     });
   });
 </script>
