@@ -11,10 +11,14 @@ COPY . .
 
 ARG PUBLIC_SUPABASE_URL
 ARG PUBLIC_SUPABASE_ANON_KEY
-ARG CACHEBUST=1
 
+# Write env to .env for Astro/Vite
 RUN printf 'PUBLIC_SUPABASE_URL=%s\nPUBLIC_SUPABASE_ANON_KEY=%s\n' \
     "$PUBLIC_SUPABASE_URL" "$PUBLIC_SUPABASE_ANON_KEY" > .env
+
+# Fetch data snapshot from Supabase — busts Docker cache ONLY when product data changes.
+# ADD re-checks URL content every build; if JSON differs, all subsequent layers rebuild.
+ADD "${PUBLIC_SUPABASE_URL}/rest/v1/v_products_homepage?select=id,base_price,glt_retail_promotion,is_active&apikey=${PUBLIC_SUPABASE_ANON_KEY}" /tmp/.dataversion.json
 
 RUN pnpm build
 
