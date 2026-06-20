@@ -103,9 +103,38 @@ const buildTimeStr = buildTime.toLocaleString('vi-VN', {
     <div class="divider"></div>
     <div class="text-center">
       <p class="text-base-content/70">© {new Date().getFullYear()} Made with 💗</p>
-      <p class="text-xs text-base-content/40 mt-1">
-        Cập nhật: {buildTimeStr}
+      <p class="text-xs text-base-content/40 mt-1 tooltip" data-tip={buildTimeStr}>
+        Cập nhật: <span data-build-time={buildTime.toISOString()}>{buildTimeStr}</span>
       </p>
     </div>
   </div>
 </footer>
+
+<script>
+  const rtf = new Intl.RelativeTimeFormat('vi', { numeric: 'auto' });
+
+  function updateBuildTimeAgo() {
+    document.querySelectorAll<HTMLElement>('[data-build-time]')?.forEach((el) => {
+      const iso = el.getAttribute('data-build-time');
+      if (!iso) return;
+      const diffMs = new Date(iso).getTime() - Date.now();
+      const diffMin = Math.round(diffMs / 60000);
+      if (Math.abs(diffMin) < 1) {
+        el.textContent = 'vừa xong';
+      } else if (Math.abs(diffMin) < 60) {
+        el.textContent = rtf.format(diffMin, 'minute');
+      } else {
+        const diffHr = Math.round(diffMin / 60);
+        if (Math.abs(diffHr) < 24) {
+          el.textContent = rtf.format(diffHr, 'hour');
+        } else {
+          const diffDay = Math.round(diffHr / 24);
+          el.textContent = rtf.format(diffDay, 'day');
+        }
+      }
+    });
+  }
+
+  updateBuildTimeAgo();
+  setInterval(updateBuildTimeAgo, 60000);
+</script>
