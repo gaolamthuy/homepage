@@ -104,10 +104,11 @@ const buildTimeStr = buildTime.toLocaleString('vi-VN', {
     <div class="text-center">
       <p class="text-base-content/70">© {new Date().getFullYear()} Made with 💗</p>
       <p class="text-xs text-base-content/40 mt-1">
-        Cập nhật: <span
+        Cập nhật:
+        <span
+          class="tooltip tooltip-top border-b border-dotted border-current cursor-help"
+          data-tip={buildTimeStr}
           data-build-time={buildTime.toISOString()}
-          class="border-b border-dotted border-current cursor-help"
-          title={buildTimeStr}
         >{buildTimeStr}</span>
       </p>
     </div>
