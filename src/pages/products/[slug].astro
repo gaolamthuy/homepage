@@ -1,208 +1,304 @@
 ---
-/**
- * Trang chi tiết sản phẩm theo glt_slug
- * Tạo static paths từ danh sách sản phẩm lấy từ PUBLIC_API_URL
- */
-
 import Layout from '../../layouts/Layout.astro';
-import ProductDetailIsland from '../../components/ProductDetailIsland.tsx';
 import { getProducts } from '../../lib/api';
+import { getProductImage, formatVnd, formatPrice, getFilteredProductImages } from '../../lib/utils';
 import type { Product, ProductResponse } from '../../types/product';
+
+export const prerender = true;
 
 interface Props {
   product: Product;
 }
 
-// Enable static generation cho trang này
-export const prerender = true;
-
 export async function getStaticPaths() {
   try {
     const data = (await getProducts()) as ProductResponse;
     const products = data.products_data || [];
-
-    // Lọc những sản phẩm có glt_slug hợp lệ
-    // Chỉ cần glt_slug, không cần cả full_name và name vì có thể có trường hợp chỉ có một trong hai
     const itemsWithSlug = products.filter((p) => Boolean(p.glt_slug));
-
-    const paths = itemsWithSlug.map((p) => ({
+    return itemsWithSlug.map((p) => ({
       params: { slug: p.glt_slug as string },
       props: { product: p },
     }));
-
-    // Log để debug (chỉ trong dev mode)
-    if (import.meta.env.DEV) {
-      console.log(`[getStaticPaths] Generated ${paths.length} product paths`);
-      // Log một vài slug để kiểm tra
-      if (paths.length > 0) {
-        console.log(`[getStaticPaths] Sample slugs:`, paths.slice(0, 5).map(p => p.params.slug));
-      }
-    }
-
-    return paths;
   } catch (error) {
-    console.error('Error generating static paths for products:', error);
-    // Trả về mảng rỗng nếu có lỗi, để tránh crash
+    console.error('Error generating static paths:', error);
     return [];
   }
 }
 
 const { product } = Astro.props as Props;
 
-// Nếu product không tồn tại (trường hợp hiếm khi getStaticPaths không match), redirect về trang products
 if (!product) {
-  if (import.meta.env.DEV) {
-    console.warn(`[ProductDetail] Product not found for slug: ${Astro.params.slug}`);
-  }
   return Astro.redirect('/products', 302);
 }
 
-// Log để debug trong dev mode
-if (import.meta.env.DEV) {
-  console.log(`[ProductDetail] Rendering product:`, {
-    slug: Astro.params.slug,
-    name: product?.name,
-    full_name: product?.full_name,
-    hasImages: Boolean(product?.glt_images?.length),
-  });
-}
+const childUnit = product.child_unit;
+const images = getFilteredProductImages(product);
+const mainImageUrl = getProductImage(product);
+const displayName = product.name || product.full_name;
 
-/**
- * Hàm lấy URL hình ảnh chính của sản phẩm cho trang chi tiết
- * Ưu tiên các ảnh có role: feature-main > closeup-main > feature-thumbnail > closeup-thumbnail
- * @param product - Đối tượng sản phẩm
- * @returns URL hình ảnh hoặc placeholder
- */
-function getProductImage(product: Product): string {
-  if (product.glt_images && product.glt_images.length > 0) {
-    // Lọc các ảnh có role trong danh sách: feature-main, feature-thumbnail, closeup-main, closeup-thumbnail
-    const allowedRoles = [
-      'feature-main',
-      'feature-thumbnail',
-      'closeup-main',
-      'closeup-thumbnail',
-    ];
-    
-    const filteredImages = product.glt_images.filter(img => 
-      allowedRoles.includes(img.role)
-    );
-    
-    if (filteredImages.length > 0) {
-      // Ưu tiên: feature-main > closeup-main > feature-thumbnail > closeup-thumbnail
-      const featureMain = filteredImages.find(img => img.role === 'feature-main');
-      if (featureMain) {
-        return featureMain.url;
-      }
-      
-      const closeupMain = filteredImages.find(img => img.role === 'closeup-main');
-      if (closeupMain) {
-        return closeupMain.url;
-      }
-      
-      const featureThumbnail = filteredImages.find(img => img.role === 'feature-thumbnail');
-      if (featureThumbnail) {
-        return featureThumbnail.url;
-      }
-      
-      const closeupThumbnail = filteredImages.find(img => img.role === 'closeup-thumbnail');
-      if (closeupThumbnail) {
-        return closeupThumbnail.url;
-      }
-      
-      // Fallback: lấy ảnh đầu tiên từ filtered images
-      return filteredImages[0].url;
-    }
-    
-    // Fallback: nếu không có ảnh trong danh sách allowed, lấy ảnh đầu tiên
-    return product.glt_images[0].url;
-  }
-  
-  return 'https://via.placeholder.com/800x600?text=No+Image';
+// Lịch sử giá (master + child)
+const masterHistory = product.price_history ?? [];
+const childHistory = childUnit?.price_history ?? [];
+const hasHistory = masterHistory.length > 0 || childHistory.length > 0;
+
+function formatDate(iso: string): string {
+  return new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(iso));
 }
 ---
 
-<Layout title={`${product?.full_name || product?.name || 'Sản phẩm'} - Gạo Lâm Thúy`} description={`Chi tiết sản phẩm ${product?.full_name || product?.name || 'Sản phẩm'}`}>
-  <nav slot="breadcrumb" class="breadcrumbs text-sm px-4 pt-4" aria-label="Breadcrumb">
-    <ul>
-      <li><a href="/">Trang chủ</a></li>
-      <li><a href="/products">Sản phẩm</a></li>
-      {product.category_name && (
-        <li><a href={`/products?category=${encodeURIComponent(product.category_name)}`}>{product.category_name}</a></li>
-      )}
-      <li aria-current="page">{product?.name || product?.full_name || 'Sản phẩm'}</li>
-    </ul>
-  </nav>
-  <div slot="breadcrumb" class="px-4 pt-2">
+<Layout
+  title={`${product.full_name || product.name} - Gạo Lâm Thúy`}
+  description={`Chi tiết sản phẩm ${product.full_name || product.name}`}
+>
+  <!-- Breadcrumb + back (merged) -->
+  <nav slot="breadcrumb" class="flex items-center gap-2 px-4 pt-4 text-sm" aria-label="Breadcrumb">
     <a
       href="/products"
-      class="btn btn-ghost btn-sm"
+      class="btn btn-ghost btn-xs shrink-0"
       onclick="if (document.referrer) { history.back(); return false; }"
-      aria-label="Quay lại trang trước"
+      aria-label="Quay lại"
     >
-      ← Quay lại
+      ←
     </a>
-  </div>
-  <main class="container mx-auto px-4 py-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Hình ảnh lớn - sẽ được ProductDetailIsland quản lý -->
-      <div id="product-image-container">
-        <img src={getProductImage(product)} alt={product?.name || product?.full_name || 'Sản phẩm'} class="w-full rounded-xl shadow-md" loading="eager" id="main-product-image" />
+    <div class="breadcrumbs min-w-0 flex-1">
+      <ul>
+        <li><a href="/">Trang chủ</a></li>
+        <li><a href="/products">Sản phẩm</a></li>
+        {product.category_name && (
+          <li>
+            <a href={`/products?category=${encodeURIComponent(product.category_name)}`}>
+              {product.category_name}
+            </a>
+          </li>
+        )}
+        <li aria-current="page" class="font-medium">{displayName}</li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-4 py-6 max-w-5xl pb-28 md:pb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+      <!-- IMAGE COLUMN -->
+      <div class="space-y-3">
+        <!-- aspect-ratio container chặn layout shift -->
+        <div class="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-md bg-base-200">
+          <img
+            src={mainImageUrl}
+            alt={displayName}
+            class="w-full h-full object-cover"
+            loading="eager"
+            id="main-image"
+          />
+        </div>
+
+        {images.length > 1 && (
+          <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-none" id="thumbnails">
+            {images.map((img, i) => (
+              <button
+                type="button"
+                class={`thumb relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden cursor-pointer transition-all duration-200 ${i === 0 ? 'ring-2 ring-primary' : 'ring-1 ring-base-300 hover:ring-primary/50'}`}
+                data-img-url={img.url}
+                aria-label={`Xem ảnh ${img.role.replace('-', ' ')}`}
+              >
+                <img
+                  src={img.url}
+                  alt={img.role}
+                  class="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      <!-- Thông tin sản phẩm -->
-      <div class="space-y-4">
+      <!-- INFO COLUMN -->
+      <div class="space-y-5">
+        <!-- Title + badges -->
         <div class="space-y-2">
-        <h1 class="text-2xl font-extrabold text-base-content">{product?.name || product?.full_name || 'Sản phẩm'}</h1>
-            
-          <div class="flex items-center gap-2 flex-wrap">
-            <div class="badge badge-outline">{product.category_name}</div>
-            {product.glt_retail_promotion && (
-              <div class="tooltip" data-tip="Giảm 10,000VNĐ/10kg cho đơn hàng dưới 50kg">
-                <div class="badge badge-outline flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" class="w-4 h-4">
-                    <path d="M 16 3 C 8.832031 3 3 8.832031 3 16 C 3 23.167969 8.832031 29 16 29 C 23.167969 29 29 23.167969 29 16 C 29 8.832031 23.167969 3 16 3 Z M 16 5 C 22.085938 5 27 9.914063 27 16 C 27 22.085938 22.085938 27 16 27 C 9.914063 27 5 22.085938 5 16 C 5 9.914063 9.914063 5 16 5 Z M 15 10 L 15 12 L 17 12 L 17 10 Z M 15 14 L 15 22 L 17 22 L 17 14 Z"></path>
-                  </svg>
-                  Khuyến mãi
-                </div>
-              </div>
+          <h1 class="text-2xl md:text-3xl font-extrabold leading-tight">{displayName}</h1>
+          <div class="flex items-center gap-1.5 flex-wrap">
+            {product.category_name && (
+              <span class="badge badge-ghost badge-sm">{product.category_name}</span>
             )}
-            {product.child_product && (
-                <div class="badge badge-outline flex items-center gap-1">
-                  Nhiều loại
-              </div>
+            {product.glt_retail_promotion && (
+              <span class="badge badge-success badge-outline badge-xs">khuyến mãi</span>
             )}
           </div>
-          
+          {product.order_template && (
+            <p class="text-sm text-base-content/60">{product.order_template}</p>
+          )}
         </div>
 
-        <ProductDetailIsland client:visible product={product} />
+        <!-- PRICE BLOCK -->
+        <div class="space-y-3 border-t border-base-200 pt-4">
+          {/* Master unit price — primary */}
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-3xl font-extrabold text-primary tabular-nums">
+              {formatVnd(product.base_price)}
+            </span>
+            <span class="text-base-content/60">/{product.unit}</span>
+          </div>
 
-        <div class="flex gap-3 pt-2">
-          <a href="https://zalo.me/0901467300" class="btn btn-primary">
-            Liên hệ
+          {/* Child unit — card chi tiết */}
+          {childUnit && (
+            <div class="bg-base-200/60 rounded-lg px-3 py-2.5 text-sm">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-base-content/60 text-xs">Giá theo {childUnit.unit}</span>
+              </div>
+              <div class="flex items-baseline gap-1.5 mt-1">
+                <span class="text-xl font-bold tabular-nums">{formatVnd(childUnit.base_price)}</span>
+                <span class="text-base-content/50">/{childUnit.unit}</span>
+                {childUnit.price_per_master_unit != null && (
+                  <span class="text-xs text-base-content/50 ml-auto">
+                    ({formatVnd(childUnit.price_per_master_unit)}/kg)
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Description (conditional) */}
+        {product.description && (
+          <div class="border-t border-base-200 pt-4">
+            <h2 class="text-sm font-semibold text-base-content/70 mb-2">Mô tả</h2>
+            <p class="text-sm text-base-content/80 leading-relaxed whitespace-pre-line">
+              {product.description}
+            </p>
+          </div>
+        )}
+
+        {/* Lịch sử giá (conditional) */}
+        {hasHistory && (
+          <div class="border-t border-base-200 pt-4">
+            <details class="collapse collapse-arrow bg-base-200/40 rounded-lg">
+              <summary class="collapse-title min-h-0 py-3 px-4 text-sm font-semibold text-base-content/70 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Lịch sử giá
+              </summary>
+              <div class="collapse-content px-4 pb-3 space-y-3">
+                {masterHistory.length > 0 && (
+                  <div>
+                    {childUnit && <div class="text-xs text-base-content/50 mb-1">/{product.unit}</div>}
+                    <ul class="space-y-1">
+                      {masterHistory.map((h) => (
+                        <li class="flex items-center justify-between gap-2 text-sm">
+                          <span class="text-base-content/50 tabular-nums text-xs">{formatDate(h.at)}</span>
+                          <span class="flex items-center gap-1.5 tabular-nums">
+                            <span class="text-base-content/40">{formatVnd(h.old)}</span>
+                            <span class="text-base-content/30">→</span>
+                            <span class="font-medium">{formatVnd(h.new)}</span>
+                            <span class={`badge badge-xs ${h.dir === 'up' ? 'badge-error badge-soft' : 'badge-success badge-soft'}`}>
+                              {h.dir === 'up' ? '↑' : '↓'} {formatPrice(Math.abs(h.diff))}
+                            </span>
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {childUnit && childHistory.length > 0 && (
+                  <div class="pt-2 border-t border-base-300/50">
+                    <div class="text-xs text-base-content/50 mb-1">/{childUnit.unit}</div>
+                    <ul class="space-y-1">
+                      {childHistory.map((h) => (
+                        <li class="flex items-center justify-between gap-2 text-sm">
+                          <span class="text-base-content/50 tabular-nums text-xs">{formatDate(h.at)}</span>
+                          <span class="flex items-center gap-1.5 tabular-nums">
+                            <span class="text-base-content/40">{formatVnd(h.old)}</span>
+                            <span class="text-base-content/30">→</span>
+                            <span class="font-medium">{formatVnd(h.new)}</span>
+                            <span class={`badge badge-xs ${h.dir === 'up' ? 'badge-error badge-soft' : 'badge-success badge-soft'}`}>
+                              {h.dir === 'up' ? '↑' : '↓'} {formatPrice(Math.abs(h.diff))}
+                            </span>
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </details>
+          </div>
+        )}
+
+        {/* CTA buttons */}
+        <div class="flex flex-col sm:flex-row gap-2 border-t border-base-200 pt-4">
+          <a href="https://zalo.me/0901467300" class="btn btn-primary gap-2 flex-1">
+            <img src="/icons/icons8-zalo.svg" alt="" class="w-5 h-5" />
+            Liên hệ đặt hàng
           </a>
           {product.glt_kiotvietshop_url && (
-            <a href={product.glt_kiotvietshop_url} target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-outline">
-              Đặt hàng online
-            </a>
+            <span
+              aria-disabled="true"
+              class="btn btn-outline flex-1 btn-disabled opacity-50 cursor-not-allowed pointer-events-none select-none"
+              title="Tạm thời không khả dụng"
+            >
+              Đặt online
+            </span>
           )}
           {product.glt_shopee_url && (
-            <a href={product.glt_shopee_url} target="_blank" rel="noopener noreferrer" class="btn">
-              Xem trên Shopee
+            <a
+              href={product.glt_shopee_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-ghost flex-1"
+            >
+              Shopee
             </a>
           )}
         </div>
-
-
-        <!-- <div class="text-xs text-base-content/50 pt-4">
-          Mã hàng: {product.code} • ID: {product.id}
-        </div> -->
       </div>
     </div>
-
-    <!-- Gợi ý sản phẩm liên quan (đơn giản: cùng danh mục) -->
-    <!-- Có thể mở rộng trong tương lai: fetch thêm và loại trừ chính mình -->
   </main>
+
+  <!-- STICKY MOBILE CTA BAR -->
+  <div class="fixed bottom-0 inset-x-0 z-30 md:hidden bg-base-100/95 backdrop-blur border-t border-base-300 px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] flex items-center justify-between gap-3 pr-16">
+    <div class="leading-tight">
+      <div class="text-lg font-extrabold text-primary tabular-nums">
+        {formatVnd(product.base_price)}<span class="text-sm font-normal text-base-content/50">/{product.unit}</span>
+      </div>
+      {childUnit && (
+        <div class="text-xs text-base-content/50 tabular-nums">
+          {formatVnd(childUnit.base_price)}/{childUnit.unit}
+        </div>
+      )}
+    </div>
+    <a href="https://zalo.me/0901467300" class="btn btn-primary btn-sm gap-1">
+      <img src="/icons/icons8-zalo.svg" alt="" class="w-4 h-4" />
+      Liên hệ
+    </a>
+  </div>
 </Layout>
 
+<script>
+  const mainImage = document.getElementById('main-image') as HTMLImageElement | null;
+  const thumbs = document.querySelectorAll<HTMLButtonElement>('.thumb');
 
+  thumbs.forEach((thumb) => {
+    thumb.addEventListener('click', () => {
+      const url = thumb.dataset.imgUrl;
+      if (!url || !mainImage) return;
+      mainImage.src = url;
+      thumbs.forEach((t) => {
+        t.classList.remove('ring-2', 'ring-primary');
+        t.classList.add('ring-1', 'ring-base-300');
+      });
+      thumb.classList.add('ring-2', 'ring-primary');
+      thumb.classList.remove('ring-1', 'ring-base-300');
+    });
+  });
+</script>
+
+<style>
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+</style>

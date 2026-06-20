@@ -22,39 +22,29 @@ export interface Product {
   glt_kiotvietshop_url: string | null;
   glt_shopee_url: string | null;
   glt_slug: string | null;
-  /**
-   * Bảng giá theo kênh (API: utdao, whole); giá trị có thể null nếu chưa cấu hình
-   */
+  description?: string | null;
   pricebooks?: {
     utdao: number | null;
     whole: number | null;
   };
-  /**
-   * Ảnh sản phẩm theo cấu trúc API mới
-   * Mảng các ảnh với role khác nhau: main, main-thumbnail, etc.
-   */
   glt_images?: Array<{
     id: number;
     url: string;
+    thumbnail_url: string | null;
     role: string;
-    created_at: string;
-    updated_at: string | null;
+    image_type: string;
+    is_thumbnail: boolean;
+    width: number | null;
+    height: number | null;
   }>;
-  /**
-   * Thông tin đơn vị con (bao 50kg)
-   */
   child_unit?: {
     unit: string;
     full_name: string;
     base_price: number;
     conversion_value: number;
-    /** Giá quy đổi theo đơn vị master (ví dụ đ/kg) — API: price_per_master_unit */
     price_per_master_unit?: number;
+    price_history?: PriceHistoryEntry[];
   };
-
-  /**
-   * Sản phẩm con (variant)
-   */
   child_product?: Array<{
     id: string;
     code: string;
@@ -64,6 +54,8 @@ export interface Product {
     full_name: string;
     is_active: boolean;
     base_price: number;
+    price_per_master_unit?: number;
+    conversion_value: number;
     child_unit: {
       unit: string;
       full_name: string;
@@ -74,9 +66,12 @@ export interface Product {
     glt_images?: Array<{
       id: number;
       url: string;
+      thumbnail_url: string | null;
       role: string;
-      created_at: string;
-      updated_at: string | null;
+      image_type: string;
+      is_thumbnail: boolean;
+      width: number | null;
+      height: number | null;
     }>;
     category_id: number;
     kiotviet_id: number;
@@ -85,7 +80,17 @@ export interface Product {
     order_template: string | null;
     glt_kiotvietshop_url: string | null;
     glt_retail_promotion: boolean;
+    price_history?: PriceHistoryEntry[];
   }>;
+  price_history?: PriceHistoryEntry[];
+}
+
+export interface PriceHistoryEntry {
+  old: number;
+  new: number;
+  diff: number;
+  dir: 'up' | 'down' | null;
+  at: string;
 }
 
 /**
@@ -111,20 +116,20 @@ export interface LayoutProps {
 }
 
 /**
- * Interface định nghĩa cấu trúc dữ liệu album item từ API
- * Khớp với cấu trúc từ album_website.json
+ * Interface định nghĩa cấu trúc dữ liệu album item từ Supabase view
  */
 export interface AlbumItem {
-  id: string;
+  id: number;
   title: string;
+  title_public: string | null;
   type: string;
   path: string;
-  rev: string | null;
-  updated_at: string | null;
+  rev: number | null;
+  rank: number;
+  facebook_post_is_selected: boolean;
+  public_url: string | null;
   created_at: string;
-  public_url_with_rev: string;
-  r2_dev_url: string;
-  title_public?: string;
+  updated_at: string | null;
 }
 
 /**

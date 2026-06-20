@@ -6,22 +6,14 @@
  */
 
 import Layout from '../layouts/Layout.astro';
-import type { AlbumItem, AlbumData } from '../types/product';
+import { getAlbum } from '../lib/api';
+import type { AlbumItem as ApiAlbumItem } from '../lib/api';
 
-// Fetch album data từ API
-let albumItems: AlbumItem[] = [];
+let albumItems: ApiAlbumItem[] = [];
 let error: string | null = null;
 
 try {
-  const apiUrl = 'https://cdn.gaolamthuy.vn/homepage/album_website.json';
-  const response = await fetch(apiUrl);
-  
-  if (response.ok) {
-    const data: AlbumData = await response.json();
-    albumItems = data.album_website || [];
-  } else {
-    error = `Lỗi khi fetch album data: HTTP ${response.status}`;
-  }
+  albumItems = await getAlbum();
 } catch (err) {
   error = err instanceof Error ? err.message : 'Lỗi không xác định khi tải album';
 }
@@ -29,12 +21,11 @@ try {
 /**
  * Format datetime từ rev timestamp (milliseconds)
  */
-function formatDateTime(rev: string | null): string {
+function formatDateTime(rev: number | null): string {
   if (!rev) return 'N/A';
   
   try {
-    const timestamp = parseInt(rev, 10);
-    if (isNaN(timestamp)) return 'N/A';
+    const timestamp = rev;
     
     const date = new Date(timestamp);
     return new Intl.DateTimeFormat('vi-VN', {
@@ -68,6 +59,16 @@ function getTypeLabel(type: string): string {
   description="Xem bảng giá dạng hình ảnh các sản phẩm gạo chất lượng cao từ Gạo Lâm Thúy - dễ chia sẻ trên mạng xã hội"
 >
   <main class="container mx-auto px-4 py-8">
+    <div class="alert alert-warning mb-6 max-w-2xl mx-auto">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+      </svg>
+      <div>
+        <h3 class="font-bold">Trang này đã lỗi thời</h3>
+        <div class="text-sm">Vui lòng dùng <a href="/album" class="link link-primary font-semibold">Album ảnh</a> mới — tối ưu vuốt, zoom cho điện thoại.</div>
+      </div>
+      <a href="/album" class="btn btn-sm btn-warning">Đi tới Album ảnh</a>
+    </div>
     <h1 class="text-4xl font-bold mb-8 text-center">Bảng Giá Hình Ảnh</h1>
     <p class="text-center text-base-content/70 mb-8 max-w-2xl mx-auto">
       Xem và tải xuống bảng giá dạng hình ảnh để dễ dàng chia sẻ trên mạng xã hội hoặc gửi cho khách hàng
@@ -90,7 +91,7 @@ function getTypeLabel(type: string): string {
     ) : (
       <div class="carousel w-full rounded-box">
         {albumItems.map((item, index) => {
-          const imageUrl = item.public_url_with_rev || item.r2_dev_url || '';
+          const imageUrl = item.public_url || '';
           const displayTitle = item.title_public || item.title;
           const itemId = `slide${index + 1}`;
           
