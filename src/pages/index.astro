@@ -109,18 +109,18 @@ const groupedProducts = groupProductsByCategory(products);
               </div>
               
               <!-- Products Grid -->
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
                 {products.map((product, index) => (
-                  <div class={index >= 4 ? 'hidden sm:block' : ''}>
+                  <div class={index >= 6 ? 'hidden sm:block' : ''}>
                     <ProductCard product={product} />
                   </div>
                 ))}
               </div>
 
-              {/* Mobile-only: show more link to /products */}
-              {products.length > 4 && (
+              {/* Mobile-only: show more link to /products filtered by category */}
+              {products.length > 6 && (
                 <div class="mt-4 text-center text-md sm:hidden">
-                  <a href="/products" class="badge badge-ghost">Xem thêm
+                  <a href={`/products?cat=${encodeURIComponent(category)}`} class="badge badge-ghost">Xem thêm
                     <svg 
                     class="w-5 h-5 text-base-content/60 group-hover:text-primary transition-colors duration-200" 
                     fill="none" 
@@ -136,7 +136,6 @@ const groupedProducts = groupProductsByCategory(products);
           );
         })
       ) : (
-        <!-- Empty State -->
         <div class="text-center py-12">
           <div class="text-6xl mb-4">🌾</div>
           <h3 class="text-2xl font-bold text-base-content mb-2">
@@ -148,5 +147,4 @@ const groupedProducts = groupProductsByCategory(products);
       		</div>
       )}
     </main>
-  </div>
 </Layout>
