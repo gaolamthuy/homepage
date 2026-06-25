@@ -55,7 +55,7 @@ const categoriesWithCounts = categories.map((c) => ({
 
     <div
       id="v2-products-container"
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+      class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6"
     >
       {products.map((product) => (
         <div
@@ -79,6 +79,17 @@ const categoriesWithCounts = categories.map((c) => ({
     if (!container || !resetBtn) return;
 
     const active = new Set<string>();
+
+    // Pre-select category từ query param (?cat=...)
+    const params = new URLSearchParams(window.location.search);
+    const preselect = params.get('cat');
+    if (preselect) {
+      filterBtns.forEach((btn) => {
+        if (btn.dataset.category === preselect) {
+          active.add(preselect);
+        }
+      });
+    }
 
     function apply() {
       const items = container.querySelectorAll<HTMLElement>('.product-item');
@@ -118,6 +129,12 @@ const categoriesWithCounts = categories.map((c) => ({
       apply();
       updateBtnStyles();
     });
+
+    // Áp dụng pre-select ngay khi khởi tạo
+    if (active.size > 0) {
+      apply();
+      updateBtnStyles();
+    }
   }
 
   if (document.readyState === 'loading') {
