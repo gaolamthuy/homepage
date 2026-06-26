@@ -1,17 +1,10 @@
 import type { Product } from '../types/product';
 
-const IMAGE_ROLES = [
-  'feature-main',
-  'feature-thumbnail',
-  'closeup-main',
-  'closeup-thumbnail',
-] as const;
+const IMAGE_ROLES = ['closeup', 'package'] as const;
 
 const ROLE_PRIORITY: Record<string, number> = {
-  'feature-main': 0,
-  'closeup-main': 1,
-  'feature-thumbnail': 2,
-  'closeup-thumbnail': 3,
+  closeup: 0,
+  package: 1,
 };
 
 export function formatPrice(price: number): string {
