@@ -1,6 +1,6 @@
 ---
 import type { Product, ProductCardProps } from '../types/product';
-import { formatVnd, getProductImage } from '../lib/utils';
+import { formatVnd, formatPrice, getProductImage } from '../lib/utils';
 
 export interface Props extends ProductCardProps {
   showPromotionBadge?: boolean;
@@ -12,6 +12,12 @@ const { product, showPromotionBadge = true, showOrderTemplate = true } = Astro.p
 function hasPromotion(product: Product): boolean {
   return product.glt_retail_promotion || false;
 }
+
+const childUnit = product.child_unit;
+const bagPrice =
+  childUnit && childUnit.price_per_master_unit != null
+    ? childUnit.price_per_master_unit * childUnit.conversion_value
+    : null;
 ---
 
 {product.glt_slug ? (
@@ -48,10 +54,22 @@ function hasPromotion(product: Product): boolean {
         )}
       </p>
       <div class="flex items-center justify-between mt-2">
-        <div class="flex items-center gap-2">
-          <span class="text-xl md:text-2xl font-bold text-primary bg-primary/10 px-2 py-1 rounded-lg">
-            {formatVnd(product.base_price)}
-          </span>
+        <div class="flex flex-col gap-0.5">
+          <div class="flex items-center gap-1">
+            <span class="text-xl md:text-2xl font-bold text-primary bg-primary/10 px-2 py-1 rounded-lg">
+              {formatVnd(product.base_price)}
+            </span>
+          </div>
+          {childUnit && childUnit.price_per_master_unit != null && bagPrice != null && (
+            <div class="flex items-center gap-1 px-2 text-xs text-base-content/50">
+              <span>{childUnit.unit} · {formatVnd(childUnit.price_per_master_unit)}</span>
+              <span class="tooltip tooltip-top" data-tip={`Giá ${childUnit.unit}: ${formatPrice(bagPrice)}đ`}>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-3.5 cursor-help">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                </svg>
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -85,10 +103,22 @@ function hasPromotion(product: Product): boolean {
         )}
       </p>
       <div class="flex items-center justify-between mt-2">
-        <div class="flex items-center gap-2">
-          <span class="text-xl md:text-2xl font-bold text-primary bg-primary/10 px-2 py-1 rounded-lg">
-            {formatVnd(product.base_price)}
-          </span>
+        <div class="flex flex-col gap-0.5">
+          <div class="flex items-center gap-1">
+            <span class="text-xl md:text-2xl font-bold text-primary bg-primary/10 px-2 py-1 rounded-lg">
+              {formatVnd(product.base_price)}
+            </span>
+          </div>
+          {childUnit && childUnit.price_per_master_unit != null && bagPrice != null && (
+            <div class="flex items-center gap-1 px-2 text-xs text-base-content/50">
+              <span>{childUnit.unit} · {formatVnd(childUnit.price_per_master_unit)}</span>
+              <span class="tooltip tooltip-top" data-tip={`Giá ${childUnit.unit}: ${formatPrice(bagPrice)}đ`}>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-3.5 cursor-help">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                </svg>
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </div>
