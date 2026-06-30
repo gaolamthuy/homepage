@@ -1,9 +1,4 @@
 ---
-/**
- * Layout chính cho toàn bộ ứng dụng
- * Import CSS và cấu hình meta tags
- */
-
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import PhotoSwipeGallery from '../components/PhotoSwipeGallery.astro';
@@ -12,16 +7,59 @@ import '../assets/app.css';
 
 export interface Props extends LayoutProps {
   totalProducts?: number;
+  ogImage?: string;
+  ogType?: string;
+  noindex?: boolean;
 }
 
-const { title = "Gạo Lâm Thúy", description = "Gạo, Tấm, Nếp cho mọi nhà", totalProducts = 0 } = Astro.props;
+const {
+  title = "Gạo Lâm Thúy",
+  description = "Gạo, Tấm, Nếp cho mọi nhà",
+  totalProducts = 0,
+  ogImage,
+  ogType = "website",
+  noindex = false,
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+const ogImageUrl = ogImage
+  ? new URL(ogImage, Astro.site).href
+  : new URL("/og-default.png", Astro.site).href;
+
+const localBusinessJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "@id": Astro.site!.href,
+  name: "Gạo Lâm Thúy",
+  url: Astro.site!.href,
+  logo: new URL("/favicon_io/apple-touch-icon.png", Astro.site).href,
+  telephone: "0901467300",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "23 Nguyễn Đình Chiểu, Phường Đức Nhuận",
+    addressLocality: "TP. Hồ Chí Minh",
+    addressCountry: "VN",
+  },
+  sameAs: [
+    "https://facebook.com/gaolamthuy",
+    "https://zalo.me/0901467300",
+  ],
+  priceRange: "$$",
+};
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Gạo Lâm Thúy",
+  url: Astro.site!.href,
+};
 ---
 
 <!DOCTYPE html>
 <html lang="vi" data-theme="bumblebee">
   <head>
     <meta charset="utf-8" />
-    <!-- Favicon set -->
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon_io/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon_io/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon_io/favicon-16x16.png" />
@@ -29,16 +67,27 @@ const { title = "Gạo Lâm Thúy", description = "Gạo, Tấm, Nếp cho mọi
     <link rel="manifest" href="/favicon_io/site.webmanifest" />
     <meta name="theme-color" content="#ffffff" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={description} />
-    
-    <!-- Import Nunito font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
-    
-    <!-- CSS được import trực tiếp trong frontmatter -->
+    <link rel="canonical" href={canonicalURL.href} />
+
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalURL.href} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:locale" content="vi_VN" />
+    <meta property="og:site_name" content="Gạo Lâm Thúy" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(localBusinessJsonLd)} />
+    <script type="application/ld+json" set:html={JSON.stringify(websiteJsonLd)} />
   </head>
   <body>
     <Header totalProducts={totalProducts} />
