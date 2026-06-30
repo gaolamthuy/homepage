@@ -36,6 +36,51 @@ const images = getFilteredProductImages(product);
 const mainImageUrl = getProductImage(product);
 const displayName = product.name || product.full_name;
 
+const productUrl = new URL(`/products/${product.glt_slug}`, Astro.site).href;
+const productImageUrl = mainImageUrl.startsWith("http") ? mainImageUrl : new URL(mainImageUrl, Astro.site).href;
+
+const productJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  name: product.full_name || product.name,
+  description: product.description || undefined,
+  url: productUrl,
+  image: productImageUrl,
+  brand: {
+    "@type": "Brand",
+    name: "Gạo Lâm Thúy",
+  },
+  offers: {
+    "@type": "Offer",
+    price: product.base_price,
+    priceCurrency: "VND",
+    availability: product.is_active
+      ? "https://schema.org/InStock"
+      : "https://schema.org/Discontinued",
+    url: productUrl,
+  },
+};
+
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Trang chủ", item: Astro.site!.href },
+    { "@type": "ListItem", position: 2, name: "Sản phẩm", item: new URL("/products", Astro.site).href },
+    ...(product.category_name
+      ? [
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: product.category_name,
+            item: new URL(`/products?category=${encodeURIComponent(product.category_name)}`, Astro.site).href,
+          },
+        ]
+      : []),
+    { "@type": "ListItem", position: product.category_name ? 4 : 3, name: displayName },
+  ],
+};
+
 // Lịch sử giá (master + child)
 const masterHistory = product.price_history ?? [];
 const childHistory = childUnit?.price_history ?? [];
@@ -48,8 +93,14 @@ function formatDate(iso: string): string {
 
 <Layout
   title={`${product.full_name || product.name} - Gạo Lâm Thúy`}
-  description={`Chi tiết sản phẩm ${product.full_name || product.name}`}
+  description={product.description || `Mua ${product.full_name || product.name} giá tốt tại Gạo Lâm Thúy. Giao hàng tận nơi TP.HCM.`}
+  ogImage={mainImageUrl}
+  ogType="product"
 >
+  <script type="application/ld+json" set:html={JSON.stringify(productJsonLd)} />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />
+
+  <!-- Breadcrumb + back (merged) -->
   <!-- Breadcrumb + back (merged) -->
   <nav slot="breadcrumb" class="flex items-center gap-2 px-4 pt-4 text-sm" aria-label="Breadcrumb">
     <a
