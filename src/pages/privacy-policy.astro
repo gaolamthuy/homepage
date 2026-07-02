@@ -1,0 +1,81 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const lastUpdated = '02/07/2025';
+---
+
+<Layout title="Chính sách bảo mật - Gạo Lâm Thúy" description="Chính sách bảo mật thông tin của Gạo Lâm Thúy.">
+  <main class="container mx-auto px-4 py-8 max-w-3xl">
+    <h1 class="text-3xl font-bold mb-2">Chính sách bảo mật</h1>
+    <p class="text-base-content/60 mb-8">Cập nhật: {lastUpdated}</p>
+
+    <div class="prose prose-lg max-w-none space-y-6 text-base-content/90">
+
+      <section>
+        <h2 class="text-xl font-bold mb-2">1. Giới thiệu</h2>
+        <p>
+          Hộ kinh doanh Phạm Lam (thương hiệu "Gạo Lâm Thúy") cam kết bảo vệ quyền riêng tư của khách hàng.
+          Chính sách này mô tả cách chúng tôi thu thập, sử dụng và bảo vệ thông tin cá nhân của bạn khi
+          truy cập website <a href="https://gaolamthuy.vn" class="link">gaolamthuy.vn</a> hoặc tương tác qua
+          các kênh mạng xã hội (Facebook Messenger, Zalo).
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold mb-2">2. Thông tin chúng tôi thu thập</h2>
+        <ul class="list-disc pl-6 space-y-1">
+          <li><strong>Website:</strong> Chúng tôi không yêu cầu đăng ký tài khoản. Website hiển thị thông tin sản phẩm và bảng giá dưới dạng tĩnh (static). Không có dữ liệu cá nhân nào được thu thập khi duyệt web.</li>
+          <li><strong>Messenger / Zalo:</strong> Khi bạn nhắn tin cho chúng tôi qua Facebook Messenger hoặc Zalo, nền tảng (Facebook/Meta) chia sẻ với chúng tôi tên hiển thị, nội dung tin nhắn và các tương tác (nhấn nút, chọn menu) để chatbot có thể phản hồi tự động.</li>
+          <li><strong>Liên hệ trực tiếp:</strong> Khi bạn gọi điện hoặc nhắn tin đặt hàng, chúng tôi ghi nhận thông tin giao hàng (tên, số điện thoại, địa chỉ) để xử lý đơn hàng.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold mb-2">3. Mục đích sử dụng</h2>
+        <ul class="list-disc pl-6 space-y-1">
+          <li>Phản lời tư vấn và gửi bảng giá cho khách hàng</li>
+          <li>Xử lý đơn hàng, sắp xếp giao hàng</li>
+          <li>Thống kê nội bộ (sản phẩm được quan tâm nhiều nhất)</li>
+        </ul>
+        <p class="mt-2">Chúng tôi <strong>không</strong> bán, cho thuê hoặc chia sẻ thông tin cá nhân của bạn cho bên thứ ba vì mục đích thương mại.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold mb-2">4. Dịch vụ bên thứ ba</h2>
+        <p>Chúng tôi sử dụng các dịch vụ sau để vận hành website và chatbot:</p>
+        <ul class="list-disc pl-6 space-y-1">
+          <li><strong>Meta (Facebook):</strong> Nền tảng Messenger để chatbot giao tiếp với khách hàng. Chi tiết xem tại <a href="https://www.facebook.com/privacy/policy" target="_blank" rel="noopener" class="link">Chính sách quyền riêng tư của Meta</a>.</li>
+          <li><strong>Cloudflare:</strong> Hosting website và phân phối nội dung.</li>
+          <li><strong>Supabase:</strong> Lưu trữ dữ liệu sản phẩm, bảng giá (không chứa thông tin cá nhân của khách hàng).</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold mb-2">5. Bảo mật dữ liệu</h2>
+        <p>
+          Dữ liệu đơn hàng và thông tin liên hệ được lưu trữ trên hệ thống nội bộ có kiểm soát truy cập.
+          Chúng tôi áp dụng các biện pháp kỹ thuật và tổ chức hợp lý để bảo vệ thông tin khỏi truy cập trái phép.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold mb-2">6. Quyền của bạn</h2>
+        <ul class="list-disc pl-6 space-y-1">
+          <li><strong>Yêu cầu xóa dữ liệu:</strong> Bạn có thể yêu cầu chúng tôi xóa thông tin cá nhân bất cứ lúc nào.</li>
+          <li><strong>Ngừng nhận tin nhắn:</strong> Bạn có thể chặn hoặc hủy đăng ký nhận tin nhắn từ chatbot bất cứ lúc nào trực tiếp trong Messenger/Zalo.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold mb-2">7. Liên hệ</h2>
+        <p>Nếu bạn có câu hỏi về chính sách bảo mật, vui lòng liên hệ:</p>
+        <ul class="list-none pl-0 space-y-1 mt-2">
+          <li>📞 Điện thoại / Zalo: <a href="tel:0901467300" class="link">0901 467 300</a></li>
+          <li>📍 Địa chỉ: 23 Nguyễn Đình Chiểu, Phường Đức Nhuận, TP.HCM</li>
+          <li>📧 Email: hophamlam92@yahoo.com</li>
+        </ul>
+      </section>
+
+    </div>
+  </main>
+</Layout>
