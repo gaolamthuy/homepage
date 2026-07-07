@@ -233,7 +233,8 @@ export async function getSocialImages(): Promise<SocialImageItem[]> {
   const supabase = createSupabaseClient();
   const { data, error } = await supabase
     .from('v_social_images_homepage')
-    .select('*');
+    .select('*')
+    .order('rank', { ascending: true });
   if (error) {
     throw new Error(
       `Supabase query v_social_images_homepage failed: ${error.message}`
