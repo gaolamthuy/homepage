@@ -63,7 +63,7 @@ const grouped = typesPresent.map((type) => ({
 
         <div
           id="social-album-gallery"
-          class="columns-2 md:columns-3 lg:columns-4 gap-2 [&>*]:mb-2"
+          class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2"
         >
           {images.map((item) => {
             const url = item.public_url || '';
